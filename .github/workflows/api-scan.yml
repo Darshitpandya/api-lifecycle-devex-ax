@@ -1,0 +1,70 @@
+name: API Agent-Readiness Scan
+
+on:
+  pull_request:
+    paths:
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "!governance/**"
+      - "!.github/**"
+      - "!scanner/**"
+
+jobs:
+  scan:
+    name: Scan OpenAPI specs for agent-readiness
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install scanner dependencies
+        run: cd scanner && npm install
+
+      - name: Find changed OpenAPI specs
+        id: specs
+        run: |
+          SPECS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep -E '\.(yaml|yml)$' \
+            | grep -v 'governance/' \
+            | grep -v '.github/' \
+            | grep -v 'scanner/' \
+            || true)
+          echo "specs=$SPECS" >> $GITHUB_OUTPUT
+          echo "Found specs: $SPECS"
+
+      - name: Run scanner on changed specs
+        if: steps.specs.outputs.specs != ''
+        id: scan
+        run: |
+          REPORT=""
+          EXIT=0
+          for SPEC in ${{ steps.specs.outputs.specs }}; do
+            echo "Scanning $SPEC..."
+            RESULT=$(node scanner/scan.js --spec "$SPEC" 2>&1) || EXIT=1
+            REPORT="$REPORT\n\n$RESULT"
+          done
+          # Save report for PR comment (escape for GitHub)
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$REPORT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          exit $EXIT
+
+      - name: Post report as PR comment
+        if: always() && steps.specs.outputs.specs != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = `${{ steps.scan.outputs.report }}`;
+            const body = `## 🤖 API Agent-Readiness Scan\n\n${report}\n\n---\n*Powered by [api-lifecycle-devex-ax](https://github.com/Darshitpandya/api-lifecycle-devex-ax)*`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

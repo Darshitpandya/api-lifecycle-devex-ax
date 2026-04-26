@@ -126,6 +126,58 @@ See the full transformation: [`examples/before.yaml`](examples/before.yaml) → 
 
 ---
 
+## Automated Scanner
+
+Generate a readiness report for any OpenAPI spec — local file, any organisation, any repo.
+
+```bash
+# Install
+cd scanner && npm install
+
+# Scan a local spec — prints Markdown report
+node scan.js --spec ../your-spec.yaml
+
+# Save report to file
+node scan.js --spec ../your-spec.yaml --output report.md
+
+# JSON output (for CI pipelines / dashboards)
+node scan.js --spec ../your-spec.yaml --format json
+```
+
+**Example output — before.yaml (typical API):**
+```
+Score: 1/10 — 🔴 Needs work
+❌ x-capability missing on all 4 operations
+❌ intent missing
+❌ safety classification missing
+...next steps listed per check
+```
+
+**Example output — after.yaml (agent-ready):**
+```
+Score: 10/10 — 🟢 Agent-Ready
+✅ All 10 checks passed
+```
+
+**In CI:** `.github/workflows/api-scan.yml` runs on every PR and posts the report as a PR comment. Copy it into any repo — zero config needed.
+
+**Checks run (10 total):**
+
+| ID | Check | Blocks merge? |
+|---|---|---|
+| C1 | x-capability on every operation | ✅ Yes |
+| C2 | intent declared | ✅ Yes |
+| C3 | safety classification (safe/mutating/destructive) | ✅ Yes |
+| C4 | side-effects on mutating operations | ✅ Yes |
+| C5 | domain declared | ✅ Yes |
+| C6 | idempotency documented | ✅ Yes |
+| C7 | RFC 9457 error responses (application/problem+json) | ✅ Yes |
+| C8 | composable-with declared | ⚠️ Warn only |
+| C9 | operationId present (required for MCP tool name) | ✅ Yes |
+| C10 | ProblemDetails schema in components | ✅ Yes |
+
+---
+
 ## Quickstart
 
 **Option 1 — Make one API agent-ready (30 min):**

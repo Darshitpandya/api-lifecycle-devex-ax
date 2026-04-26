@@ -1,0 +1,18 @@
+{
+  "name": "api-lifecycle-devex-ax-scanner",
+  "version": "1.0.0",
+  "description": "Automated agent-readiness scanner — generates a report for any OpenAPI spec",
+  "bin": {
+    "ax-scan": "./scan.js"
+  },
+  "scripts": {
+    "scan": "node scan.js",
+    "test": "node scan.js --spec ../examples/after.yaml && node scan.js --spec ../examples/before.yaml"
+  },
+  "dependencies": {
+    "js-yaml": "4.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
