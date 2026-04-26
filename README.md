@@ -133,10 +133,21 @@ See the full transformation: [`examples/before.yaml`](examples/before.yaml) → 
 # 1. Fork this repo
 # 2. Open examples/after.yaml — see the pattern
 # 3. Add x-capability to your own spec (schema: spec/capability-schema.json)
-# 4. Lint
+# 4. Lint — validates metadata is complete and correct
 cd governance && npm install && npm run lint:api -- --spec ../your-spec.yaml
-# 5. Map to MCP: see mcp/mapping-guide.md
+# 5. Generate MCP server config from your enriched spec
+#    Follow mcp/mapping-guide.md to produce a config like:
+#    { "mcpServers": { "your-api": { ... } } }
+# 6. Register with your MCP host:
+#    - Claude Desktop: add to ~/.config/claude/claude_desktop_config.json
+#    - Kiro: add to .kiro/settings/mcp.json
+#    - Your agent framework: point at the MCP server URL
+# ✅ Agents can now discover and invoke your API via MCP
 ```
+
+> **What each step achieves:**
+> - Steps 3–4: spec is intent-rich — humans benefit immediately, spec is semantically agent-ready
+> - Steps 5–6: agents can *operationally* discover and invoke your API — this is what makes it truly agent-ready
 
 **Option 2 — Enforce across your team (1 hour):**
 ```bash
