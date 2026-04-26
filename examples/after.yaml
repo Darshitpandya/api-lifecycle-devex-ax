@@ -1,0 +1,248 @@
+openapi: "3.1.0"
+info:
+  title: Commerce API
+  version: "1.0.0"
+  description: API for managing orders and inventory.
+
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Create a new order
+      tags: [orders]
+      # x-capability: intent metadata for DevEx and AX (Agent Experience)
+      # See spec/capability-schema.json for the full schema
+      x-capability:
+        intent: "Create a commerce order with payment capture and inventory reservation"
+        domain: commerce
+        workflow: order-fulfillment
+        side-effects:
+          - payment-capture
+          - inventory-reserve
+          - order-confirmation-email
+        composable-with:
+          - checkInventory
+          - dispatchFulfillment
+        requires:
+          - authenticated-context
+          - payment-method
+          - valid-cart
+        idempotency: supported
+        safety: mutating
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items, payment_method_id]
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [sku, quantity]
+                    properties:
+                      sku:
+                        type: string
+                        description: Product SKU identifier
+                      quantity:
+                        type: integer
+                        minimum: 1
+                        description: Number of units to order
+                payment_method_id:
+                  type: string
+                  description: ID of the payment method to charge
+                idempotency_key:
+                  type: string
+                  description: Client-generated key for safe retries (recommended)
+      responses:
+        "201":
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "422":
+          description: Business rule violation (e.g. insufficient inventory)
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      summary: Get an order by ID
+      tags: [orders]
+      x-capability:
+        intent: "Retrieve the current status and details of a specific order"
+        domain: commerce
+        workflow: order-fulfillment
+        composable-with:
+          - createOrder
+          - cancelOrder
+        idempotency: natural
+        safety: safe
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique order identifier
+      responses:
+        "200":
+          description: Order found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+    delete:
+      operationId: cancelOrder
+      summary: Cancel an order
+      tags: [orders]
+      x-capability:
+        intent: "Cancel an existing order and trigger refund if payment was captured"
+        domain: commerce
+        workflow: order-fulfillment
+        side-effects:
+          - payment-refund
+          - inventory-release
+          - cancellation-email
+        composable-with:
+          - getOrder
+        requires:
+          - authenticated-context
+          - order-in-cancellable-state
+        idempotency: natural
+        safety: destructive
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique order identifier
+      responses:
+        "204":
+          description: Order cancelled successfully
+        "404":
+          description: Order not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "409":
+          description: Order cannot be cancelled in its current state
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /inventory/{sku}:
+    get:
+      operationId: checkInventory
+      summary: Check inventory for a SKU
+      tags: [inventory]
+      x-capability:
+        intent: "Check available inventory level for a product SKU before placing an order"
+        domain: inventory
+        workflow: order-fulfillment
+        composable-with:
+          - createOrder
+        idempotency: natural
+        safety: safe
+      parameters:
+        - name: sku
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Product SKU identifier
+      responses:
+        "200":
+          description: Inventory level retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryLevel"
+        "404":
+          description: SKU not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, shipped, delivered, cancelled]
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              sku:
+                type: string
+              quantity:
+                type: integer
+        total_amount:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    InventoryLevel:
+      type: object
+      properties:
+        sku:
+          type: string
+        available:
+          type: integer
+        reserved:
+          type: integer
+        warehouse_location:
+          type: string
+
+    ProblemDetails:
+      type: object
+      description: RFC 9457 Problem Details for HTTP APIs
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+          description: URI identifying the problem type
+        title:
+          type: string
+          description: Short human-readable summary
+        status:
+          type: integer
+          description: HTTP status code
+        detail:
+          type: string
+          description: Human-readable explanation specific to this occurrence
+        instance:
+          type: string
+          format: uri
+          description: URI identifying this specific occurrence

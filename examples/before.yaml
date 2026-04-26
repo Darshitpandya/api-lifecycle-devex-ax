@@ -1,0 +1,143 @@
+openapi: "3.1.0"
+info:
+  title: Commerce API
+  version: "1.0.0"
+  description: API for managing orders and inventory.
+
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Create a new order
+      tags: [orders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items, payment_method_id]
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [sku, quantity]
+                    properties:
+                      sku:
+                        type: string
+                      quantity:
+                        type: integer
+                        minimum: 1
+                payment_method_id:
+                  type: string
+                idempotency_key:
+                  type: string
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Bad request
+        "422":
+          description: Unprocessable entity
+
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      summary: Get an order by ID
+      tags: [orders]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+
+    delete:
+      operationId: cancelOrder
+      summary: Cancel an order
+      tags: [orders]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Order cancelled
+        "404":
+          description: Order not found
+        "409":
+          description: Order cannot be cancelled
+
+  /inventory/{sku}:
+    get:
+      operationId: checkInventory
+      summary: Check inventory for a SKU
+      tags: [inventory]
+      parameters:
+        - name: sku
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Inventory level
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryLevel"
+        "404":
+          description: SKU not found
+
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, shipped, delivered, cancelled]
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              sku:
+                type: string
+              quantity:
+                type: integer
+        total_amount:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    InventoryLevel:
+      type: object
+      properties:
+        sku:
+          type: string
+        available:
+          type: integer
+        reserved:
+          type: integer
+        warehouse_location:
+          type: string

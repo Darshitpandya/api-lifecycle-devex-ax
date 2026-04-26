@@ -1,0 +1,51 @@
+extends: ["spectral:oas"]
+
+rules:
+  # ERRORS — block merge if violated
+
+  operation-must-have-capability:
+    description: Every operation must have x-capability metadata for agent discoverability
+    message: "Missing x-capability on {{path}}. Add intent, domain, and safety fields."
+    severity: error
+    given: "$.paths[*][get,post,put,patch,delete]"
+    then:
+      field: x-capability
+      function: truthy
+
+  capability-must-have-intent:
+    description: x-capability must include a plain-language intent description
+    message: "Missing x-capability.intent on {{path}}. Describe what this operation accomplishes."
+    severity: error
+    given: "$.paths[*][get,post,put,patch,delete].x-capability"
+    then:
+      field: intent
+      function: truthy
+
+  capability-must-have-safety:
+    description: x-capability must include a safety classification (safe/mutating/destructive)
+    message: "Missing x-capability.safety on {{path}}. Classify as safe, mutating, or destructive."
+    severity: error
+    given: "$.paths[*][get,post,put,patch,delete].x-capability"
+    then:
+      field: safety
+      function: truthy
+
+  # WARNINGS — flag for review but don't block
+
+  mutating-must-declare-side-effects:
+    description: Mutating operations must declare their side effects
+    message: "Missing x-capability.side-effects on mutating operation {{path}}. What state does this change?"
+    severity: warn
+    given: "$.paths[*][post,put,patch,delete].x-capability"
+    then:
+      field: side-effects
+      function: truthy
+
+  capability-must-have-domain:
+    description: x-capability must include a domain classification
+    message: "Missing x-capability.domain on {{path}}. Which business domain does this belong to?"
+    severity: warn
+    given: "$.paths[*][get,post,put,patch,delete].x-capability"
+    then:
+      field: domain
+      function: truthy

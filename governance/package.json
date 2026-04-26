@@ -1,0 +1,12 @@
+{
+  "name": "api-lifecycle-devex-ax-governance",
+  "version": "1.0.0",
+  "description": "API agent-readiness linting — works on Mac, Windows, Linux",
+  "scripts": {
+    "lint:api": "spectral lint --ruleset .spectral.yml",
+    "lint:example": "spectral lint ../examples/after.yaml --ruleset .spectral.yml"
+  },
+  "devDependencies": {
+    "@stoplight/spectral-cli": "6.14.2"
+  }
+}

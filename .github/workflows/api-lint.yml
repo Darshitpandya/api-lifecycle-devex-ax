@@ -1,0 +1,38 @@
+name: API Agent-Readiness Check
+
+on:
+  pull_request:
+    paths:
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "!governance/**"
+      - "!.github/**"
+
+jobs:
+  lint:
+    name: Lint OpenAPI specs for agent-readiness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Spectral
+        run: npm install -g @stoplight/spectral-cli@6.14.2
+
+      - name: Lint changed OpenAPI specs
+        run: |
+          # Find all changed YAML files that look like OpenAPI specs
+          SPECS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(yaml|yml)$' | grep -v 'governance/' | grep -v '.github/' || true)
+          if [ -z "$SPECS" ]; then
+            echo "No OpenAPI spec changes detected."
+            exit 0
+          fi
+          echo "Linting specs: $SPECS"
+          for SPEC in $SPECS; do
+            echo "--- Linting $SPEC ---"
+            spectral lint "$SPEC" --ruleset governance/.spectral.yml
+          done

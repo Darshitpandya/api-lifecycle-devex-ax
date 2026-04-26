@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "x-capability",
+  "description": "OpenAPI extension that makes API operations discoverable and consumable by AI agents. Add to every operation alongside standard OpenAPI fields.",
+  "type": "object",
+  "required": ["intent", "domain", "safety"],
+  "properties": {
+    "intent": {
+      "type": "string",
+      "description": "Plain-language description of what this operation accomplishes — written for both human developers and AI agents. Not a technical summary. Answer: 'what can I accomplish by calling this?'"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Business domain this capability belongs to.",
+      "examples": ["commerce", "identity", "fulfillment", "inventory", "payments", "notifications"]
+    },
+    "workflow": {
+      "type": "string",
+      "description": "The workflow or process this capability participates in.",
+      "examples": ["order-fulfillment", "user-onboarding", "payment-processing"]
+    },
+    "side-effects": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Side effects this operation produces. Required for mutating operations.",
+      "examples": [["payment-capture", "inventory-reserve", "email-notification"]]
+    },
+    "composable-with": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "operationIds of other capabilities this can be chained with in a workflow. Agents use this for workflow planning."
+    },
+    "requires": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Prerequisites for invoking this capability.",
+      "examples": [["authenticated-context", "payment-method", "valid-cart"]]
+    },
+    "idempotency": {
+      "type": "string",
+      "enum": ["supported", "not-supported", "natural"],
+      "description": "'supported' = via Idempotency-Key header. 'natural' = inherently idempotent (GET, PUT). 'not-supported' = retries may cause duplicates."
+    },
+    "safety": {
+      "type": "string",
+      "enum": ["safe", "mutating", "destructive"],
+      "description": "Safety classification for agent decision-making. 'safe' = read-only, no side effects. 'mutating' = creates or modifies state. 'destructive' = deletes or irreversible action."
+    }
+  },
+  "additionalProperties": false
+}

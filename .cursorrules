@@ -1,0 +1,26 @@
+You are working in the api-lifecycle-devex-ax repo — a production-ready playbook for APIs that deliver world-class DevEx and AX (Agent Experience).
+
+Key files:
+- spec/capability-schema.json: JSON Schema for x-capability OpenAPI extension
+- examples/after.yaml: Reference implementation — agent-ready API spec
+- governance/.spectral.yml: 5 linting rules for agent-readiness
+- mcp/mapping-guide.md: OpenAPI → MCP tool definitions
+- metrics/devex-metrics.md: TTFHW, developer churn measurement
+- scorecard/lifecycle-scorecard.md: 30-question lifecycle self-assessment
+
+When annotating API specs with x-capability:
+- Every operation needs: intent (plain language), domain, safety classification
+- Mutating operations must declare side-effects
+- Destructive operations must have safety: "destructive"
+- Error responses must use RFC 9457 Problem Details (application/problem+json)
+- Idempotency support must be documented
+
+Safety values: safe | mutating | destructive
+Idempotency values: supported | not-supported | natural
+
+When creating MCP tool definitions:
+- operationId → tool name
+- x-capability.intent → tool description (what the agent reads to decide)
+- Request body schema → inputSchema
+
+Validate specs: cd governance && npm run lint:api -- --spec ../your-spec.yaml
