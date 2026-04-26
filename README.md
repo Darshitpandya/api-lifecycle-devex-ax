@@ -176,6 +176,16 @@ Score: 10/10 — 🟢 Agent-Ready
 | C9 | operationId present (required for MCP tool name) | ✅ Yes |
 | C10 | ProblemDetails schema in components | ✅ Yes |
 
+> **Automated vs. human assessment:**
+> The scanner covers everything that can be objectively verified from the spec.
+> Some things can't be automated — use the human tools alongside it:
+> - **TTFHW measurement** (Time to First Hello World) — requires gateway telemetry: [`metrics/devex-metrics.md`](metrics/devex-metrics.md)
+> - **Developer churn tracking** — requires gateway telemetry: [`metrics/devex-metrics.md`](metrics/devex-metrics.md)
+> - **Product ownership, lifecycle roadmap, org maturity** — requires human assessment: [`scorecard/lifecycle-scorecard.md`](scorecard/lifecycle-scorecard.md)
+> - **"Is this intent description actually meaningful?"** — requires human judgment: [`checklist.md`](checklist.md)
+>
+> Run the scanner first. Then use the scorecard to assess the stages the scanner can't see.
+
 ---
 
 ## Quickstart
