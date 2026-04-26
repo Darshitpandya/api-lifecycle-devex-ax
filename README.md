@@ -94,11 +94,12 @@ Rate your entire API program: [`scorecard/lifecycle-scorecard.md`](scorecard/lif
 
 Open this repo in your AI coding tool and say **"make my API agent-ready"** — it works automatically.
 
-| Tool | File read |
-|---|---|
-| Kiro / Claude Code | `CLAUDE.md` |
-| Cursor | `.cursorrules` |
-| GitHub Copilot | `.github/copilot-instructions.md` |
+| Tool | Context file | What it does |
+|---|---|---|
+| **Kiro** | `.kiro/steering/` | 3 steering files: project overview (always loaded), API spec patterns (loaded on `.yaml` files), MCP patterns (loaded on `mcp/` files) |
+| **Claude Code** | `CLAUDE.md` | Full project context, lint commands, pattern guide |
+| **Cursor** | `.cursorrules` | Inline rules for spec annotation and MCP mapping |
+| **GitHub Copilot** | `.github/copilot-instructions.md` | Suggestion context for OpenAPI edits |
 
 ---
 

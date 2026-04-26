@@ -1,4 +1,6 @@
-# api-lifecycle-devex-ax
+# Claude Code Context
+
+> This file is read by **Claude Code** (`claude` CLI). For Kiro, see `.kiro/steering/`. For Cursor, see `.cursorrules`. For GitHub Copilot, see `.github/copilot-instructions.md`.
 
 ## What this repo is
 A production-ready playbook for making existing APIs deliver world-class DevEx (Developer Experience) and AX (Agent Experience) — for humans, pipelines, and AI agents simultaneously.
