@@ -126,65 +126,40 @@ See the full transformation: [`examples/before.yaml`](examples/before.yaml) → 
 
 ---
 
-## Automated Scanner
+## Two Ways to Assess Your APIs
 
-Generate a readiness report for any OpenAPI spec — local file, any organisation, any repo.
+Choose the approach that fits your situation — or use both.
+
+### 🤖 Automated Assessment
+**For:** Any OpenAPI spec, any machine, any org. Instant. No human judgment needed.
 
 ```bash
-# Install
-cd scanner && npm install
-
-# Scan a local spec — prints Markdown report
+cd automated-assessment && npm install
 node scan.js --spec ../your-spec.yaml
-
-# Save report to file
-node scan.js --spec ../your-spec.yaml --output report.md
-
-# JSON output (for CI pipelines / dashboards)
-node scan.js --spec ../your-spec.yaml --format json
 ```
 
-**Example output — before.yaml (typical API):**
-```
-Score: 1/10 — 🔴 Needs work
-❌ x-capability missing on all 4 operations
-❌ intent missing
-❌ safety classification missing
-...next steps listed per check
-```
+Runs 10 checks. Outputs a Markdown or JSON report. Exit code 1 on failures — integrates with any CI gate.
+Also available as a GitHub Actions workflow that posts the report as a PR comment: `.github/workflows/api-scan.yml`
 
-**Example output — after.yaml (agent-ready):**
-```
-Score: 10/10 — 🟢 Agent-Ready
-✅ All 10 checks passed
-```
+→ **[`automated-assessment/`](automated-assessment/)** — full docs, CI setup, check list
 
-**In CI:** `.github/workflows/api-scan.yml` runs on every PR and posts the report as a PR comment. Copy it into any repo — zero config needed.
+---
 
-**Checks run (10 total):**
+### 👤 Human Assessment
+**For:** Things no scanner can verify — TTFHW, developer churn, product ownership, org maturity.
 
-| ID | Check | Blocks merge? |
+| Tool | What it covers | Time |
 |---|---|---|
-| C1 | x-capability on every operation | ✅ Yes |
-| C2 | intent declared | ✅ Yes |
-| C3 | safety classification (safe/mutating/destructive) | ✅ Yes |
-| C4 | side-effects on mutating operations | ✅ Yes |
-| C5 | domain declared | ✅ Yes |
-| C6 | idempotency documented | ✅ Yes |
-| C7 | RFC 9457 error responses (application/problem+json) | ✅ Yes |
-| C8 | composable-with declared | ⚠️ Warn only |
-| C9 | operationId present (required for MCP tool name) | ✅ Yes |
-| C10 | ProblemDetails schema in components | ✅ Yes |
+| [`checklist.md`](human-assessment/checklist.md) | 12-item yes/no for a specific API | 5 min |
+| [`lifecycle-scorecard.md`](human-assessment/lifecycle-scorecard.md) | 30-question self-assessment, 6 lifecycle stages | Half a day |
+| [`devex-metrics.md`](human-assessment/devex-metrics.md) | How to measure TTFHW and developer churn | Setup: 1–2 days |
+| [`api-product-metrics.md`](human-assessment/api-product-metrics.md) | Operational + business value metrics | Setup: 1–2 days |
 
-> **Automated vs. human assessment:**
-> The scanner covers everything that can be objectively verified from the spec.
-> Some things can't be automated — use the human tools alongside it:
-> - **TTFHW measurement** (Time to First Hello World) — requires gateway telemetry: [`metrics/devex-metrics.md`](metrics/devex-metrics.md)
-> - **Developer churn tracking** — requires gateway telemetry: [`metrics/devex-metrics.md`](metrics/devex-metrics.md)
-> - **Product ownership, lifecycle roadmap, org maturity** — requires human assessment: [`scorecard/lifecycle-scorecard.md`](scorecard/lifecycle-scorecard.md)
-> - **"Is this intent description actually meaningful?"** — requires human judgment: [`checklist.md`](checklist.md)
->
-> Run the scanner first. Then use the scorecard to assess the stages the scanner can't see.
+→ **[`human-assessment/`](human-assessment/)** — full docs, what the scanner can't cover
+
+---
+
+**Recommended workflow:** Run the automated scanner first. Then use the lifecycle scorecard to assess the stages the scanner can't see.
 
 ---
 
@@ -225,7 +200,7 @@ make lint-api SPEC=your-spec.yaml
 ```
 
 **Option 3 — Assess your API program (half day):**
-Open [`scorecard/lifecycle-scorecard.md`](scorecard/lifecycle-scorecard.md) — 30 questions, 6 stages, score 1–5. Find the weakest stage. Start there.
+Open [`human-assessment/lifecycle-scorecard.md`](human-assessment/lifecycle-scorecard.md) — 30 questions, 6 stages, score 1–5. Find the weakest stage. Start there.
 
 ---
 
@@ -239,13 +214,11 @@ Open [`scorecard/lifecycle-scorecard.md`](scorecard/lifecycle-scorecard.md) — 
 | `governance/.spectral.yml` | 5 lint rules — drop into CI today |
 | `governance/package.json` | `npm run lint:api` — Mac / Windows / Linux |
 | `governance/Makefile` | `make lint-api` — platform engineers |
-| `.github/workflows/api-lint.yml` | GitHub Actions — runs on every PR |
+| `.github/workflows/api-lint.yml` | GitHub Actions lint — runs on every PR |
 | `governance/deprecation-runway.md` | 4-stage deprecation template (RFC 8594) |
 | `mcp/mapping-guide.md` | OpenAPI → MCP tool definitions |
-| `metrics/devex-metrics.md` | TTFHW, developer churn — how to measure |
-| `metrics/api-product-metrics.md` | Operational + business value metrics |
-| `checklist.md` | 12-item agent-readiness checklist |
-| `scorecard/lifecycle-scorecard.md` | 30-question lifecycle self-assessment |
+| **`automated-assessment/`** | **Scanner CLI — 10 checks, Markdown/JSON report, CI workflow** |
+| **`human-assessment/`** | **Checklist, scorecard, DevEx + metrics guides** |
 
 ---
 
