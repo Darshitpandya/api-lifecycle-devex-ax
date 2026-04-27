@@ -272,14 +272,16 @@ check("R3", "[Repo] MCP server config exists — Discover stage agent discoverab
   const found = findUpGlob(candidates, specDir);
   return {
     pass: !!found,
-    warn: !found,
-    detail: found ? `Found: ${path.relative(specDir, found)}` : "No MCP server config found",
-    fix: "Generate an MCP server config from your spec — see openapi-to-mcp/mapping-guide.md",
+    info: !found,  // template-expected: generate this after annotating your spec
+    detail: found
+      ? `Found: ${path.relative(specDir, found)}`
+      : "No MCP server config found — expected next step after annotating your spec",
+    fix: "Generate your MCP server config: follow openapi-to-mcp/mapping-guide.md, then register with your MCP host (Claude Desktop, Kiro, or your agent framework)",
   };
 });
 
 // R4 — Deprecation runway template exists and has dates filled in (Sunset stage)
-check("R4", "[Repo] Deprecation runway template exists with dates — Sunset stage", () => {
+check("R4", "[Repo] Deprecation runway template has dates filled in — Sunset stage", () => {
   const found = findUpGlob([
     "governance-as-code/deprecation-runway.md",
     "deprecation-runway.md",
@@ -292,15 +294,14 @@ check("R4", "[Repo] Deprecation runway template exists with dates — Sunset sta
     };
   }
   const content = fs.readFileSync(found, "utf8");
-  // Check if placeholder dates have been replaced with real dates
   const hasPlaceholder = content.includes("[YYYY-MM-DD]");
   return {
     pass: !hasPlaceholder,
-    warn: hasPlaceholder,
+    info: hasPlaceholder,  // template-expected: fill in when you deprecate an API
     detail: hasPlaceholder
-      ? `Found deprecation-runway.md but dates are still placeholders`
-      : `Found deprecation-runway.md with dates filled in`,
-    fix: "Fill in the announce and sunset dates in governance-as-code/deprecation-runway.md",
+      ? "Deprecation runway template found — fill in dates when you deprecate an API"
+      : "Deprecation runway template found with dates filled in",
+    fix: "Fill in the announce and sunset dates in governance-as-code/deprecation-runway.md when you start a deprecation",
   };
 });
 
@@ -358,7 +359,7 @@ const lines = [
   `| # | Check | Result | Detail |`,
   `|---|---|---|---|`,
   ...checks.map((c) =>
-    `| ${c.id} | ${c.description} | ${c.pass ? "✅ Pass" : c.warn ? "⚠️ Warn" : "❌ Fail"} | ${c.detail} |`
+    `| ${c.id} | ${c.description} | ${c.pass ? "✅ Pass" : c.info ? "ℹ️ Next step" : c.warn ? "⚠️ Warn" : "❌ Fail"} | ${c.detail} |`
   ),
   ``,
 ];
@@ -386,6 +387,6 @@ if (outputPath) {
   console.log(report);
 }
 
-// Exit 1 if any hard failures (not warnings)
-const hardFails = checks.filter((c) => !c.pass && !c.warn);
+// Exit 1 if any hard failures (not warnings or info)
+const hardFails = checks.filter((c) => !c.pass && !c.warn && !c.info);
 process.exit(hardFails.length > 0 ? 1 : 0);

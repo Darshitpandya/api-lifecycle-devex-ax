@@ -138,7 +138,7 @@ cd readiness-scanner && npm install
 node scan.js --spec ../your-spec.yaml
 ```
 
-Runs 10 checks. Outputs a Markdown or JSON report. Exit code 1 on failures — integrates with any CI gate.
+Runs 14 checks (10 spec + 4 repo structure). Outputs a Markdown or JSON report. Exit code 1 on hard failures — integrates with any CI gate. R3/R4 show as `ℹ️ Next step` (template-expected) not failures.
 Also available as a GitHub Actions workflow that posts the report as a PR comment: `.github/workflows/api-scan.yml`
 
 → **[`readiness-scanner/`](readiness-scanner/)** — full docs, CI setup, check list
@@ -217,22 +217,25 @@ Open [`lifecycle-assessment/lifecycle-scorecard.md`](lifecycle-assessment/lifecy
 | `.github/workflows/api-lint.yml` | GitHub Actions lint — runs on every PR |
 | `governance-as-code/deprecation-runway.md` | 4-stage deprecation template (RFC 8594) |
 | `openapi-to-mcp/mapping-guide.md` | OpenAPI → MCP tool definitions |
-| **`readiness-scanner/`** | **Scanner CLI — 10 checks, Markdown/JSON report, CI workflow** |
-| **`lifecycle-assessment/`** | **Checklist, scorecard, DevEx + metrics guides** |
+| **`readiness-scanner/`** | **Automated scanner — 14 checks, Markdown/JSON report, CI workflow** |
+| **`lifecycle-assessment/measuring-devex-ax.md`** | **DevEx, AX, and pipeline measurement — metrics, formulas, targets** |
+| **`lifecycle-assessment/`** | **Checklist, scorecard, DevEx + AX metrics, churn SQL queries** |
 
 ---
 
-## DevEx vs AX
+## Measuring DevEx, AX, and Pipeline Experience
 
-| | DevEx | AX (Agent Experience) |
-|---|---|---|
-| Consumer | Human developer | AI agent |
-| Discovery | Portal, docs, sandbox | MCP server, capability registry |
-| Key metric | TTFHW < 15 minutes | Intent resolution rate |
-| Failure mode | Abandonment | Wrong tool chosen silently |
-| Needs | Good docs, clear examples | Explicit intent, safety classification |
+This playbook covers all three consumer types. Each has its own measurement framework:
 
-Great DevEx and great AX share the same foundations — good specs, clear naming, structured errors, predictable behaviour. They diverge on intent: agents need it explicit in the spec. This playbook optimises both.
+| Consumer | Term | Key metric | Target | Guide |
+|---|---|---|---|---|
+| 👩‍💻 Human | **DevEx** | TTFHW (Time to First Hello World) | < 15 minutes | [`measuring-devex-ax.md`](lifecycle-assessment/measuring-devex-ax.md) |
+| 🔧 Pipeline | **Reliability** | Contract pass rate | 100% | [`measuring-devex-ax.md`](lifecycle-assessment/measuring-devex-ax.md) |
+| 🤖 Agent | **AX** | Intent resolution rate | > 90% | [`measuring-devex-ax.md`](lifecycle-assessment/measuring-devex-ax.md) |
+
+**World-class DevEx** = TTFHW under 15 minutes. **World-class AX** = agents select the right tool > 90% of the time and succeed on first invocation > 80% of the time.
+
+The scanner (`readiness-scanner/`) checks the spec foundations. Runtime measurement requires gateway telemetry — see [`lifecycle-assessment/measuring-devex-ax.md`](lifecycle-assessment/measuring-devex-ax.md) for queries and formulas.
 
 ---
 
