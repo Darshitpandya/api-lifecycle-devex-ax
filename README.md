@@ -134,7 +134,7 @@ Choose the approach that fits your situation — or use both.
 **For:** Any OpenAPI spec, any machine, any org. Instant. No human judgment needed.
 
 ```bash
-cd automated-assessment && npm install
+cd readiness-scanner && npm install
 node scan.js --spec ../your-spec.yaml
 ```
 

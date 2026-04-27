@@ -5,7 +5,7 @@ on:
     paths:
       - "**/*.yaml"
       - "**/*.yml"
-      - "!governance/**"
+      - "!governance-as-code/**"
       - "!.github/**"
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
       - name: Lint changed OpenAPI specs
         run: |
           # Find all changed YAML files that look like OpenAPI specs
-          SPECS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(yaml|yml)$' | grep -v 'governance/' | grep -v '.github/' || true)
+          SPECS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(yaml|yml)$' | grep -v 'governance-as-code/' | grep -v '.github/' || true)
           if [ -z "$SPECS" ]; then
             echo "No OpenAPI spec changes detected."
             exit 0

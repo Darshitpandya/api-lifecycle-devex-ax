@@ -5,7 +5,7 @@ Contributions welcome. The goal is to keep this repo thin, practical, and immedi
 ## What belongs here
 
 - Improvements to existing patterns (spec, governance, MCP mapping, metrics, scorecard)
-- Additional domain examples in `examples/` (healthcare, identity, payments, etc.)
+- Additional domain examples in `api-transformation/` (healthcare, identity, payments, etc.)
 - Bug fixes in the Spectral rules
 - Corrections to the metrics formulas or scorecard questions
 

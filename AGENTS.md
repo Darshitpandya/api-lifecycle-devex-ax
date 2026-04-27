@@ -52,7 +52,7 @@ cd governance && npm install && npm run lint:api -- --spec ../your-spec.yaml
 ## Scan command (automated assessment)
 
 ```bash
-cd automated-assessment && npm install && node scan.js --spec ../your-spec.yaml
+cd readiness-scanner && npm install && node scan.js --spec ../your-spec.yaml
 ```
 
 ## When creating MCP tool definitions

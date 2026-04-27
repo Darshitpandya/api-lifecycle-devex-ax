@@ -10,7 +10,7 @@ Annotate an OpenAPI spec with `x-capability` metadata to make it discoverable by
 4. Fix error responses to use RFC 9457 Problem Details (`application/problem+json`)
 5. Add ProblemDetails schema to `components/schemas` if missing
 6. Run `cd governance && npm run lint:api -- --spec ../your-spec.yaml`
-7. Run `cd automated-assessment && node scan.js --spec ../your-spec.yaml`
+7. Run `cd readiness-scanner && node scan.js --spec ../your-spec.yaml`
 8. Show results and remaining gaps
 
 ## Intent writing rule
