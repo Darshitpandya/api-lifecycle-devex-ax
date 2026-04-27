@@ -210,6 +210,100 @@ check("C10", "ProblemDetails schema defined in components/schemas", () => {
   };
 });
 
+// ─── Repo structure checks (lifecycle stage signals) ─────────────────────────
+// Resolved relative to the spec file's directory
+
+const specDir = path.dirname(path.resolve(specPath));
+
+function findUp(filename, startDir) {
+  let dir = startDir;
+  for (let i = 0; i < 6; i++) {
+    if (fs.existsSync(path.join(dir, filename))) return path.join(dir, filename);
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+
+function findUpGlob(patterns, startDir) {
+  for (const p of patterns) {
+    const found = findUp(p, startDir);
+    if (found) return found;
+  }
+  return null;
+}
+
+// R1 — Spectral ruleset exists (Design stage)
+check("R1", "[Repo] Spectral ruleset exists (.spectral.yml) — Design stage governance", () => {
+  const found = findUpGlob([".spectral.yml", ".spectral.yaml", "governance/.spectral.yml"], specDir);
+  return {
+    pass: !!found,
+    detail: found ? `Found: ${path.relative(specDir, found)}` : "No .spectral.yml found in repo",
+    fix: "Add governance/.spectral.yml — copy from this playbook repo",
+  };
+});
+
+// R2 — GitHub Actions CI workflow exists (Build stage)
+check("R2", "[Repo] GitHub Actions workflow exists — Build stage CI", () => {
+  const workflowDir = findUp(".github/workflows", specDir);
+  let found = null;
+  if (workflowDir) {
+    try {
+      const files = fs.readdirSync(workflowDir);
+      found = files.find((f) => f.endsWith(".yml") || f.endsWith(".yaml"));
+    } catch (_) {}
+  }
+  return {
+    pass: !!found,
+    detail: found ? `Found workflow: .github/workflows/${found}` : "No .github/workflows/*.yml found",
+    fix: "Add a GitHub Actions workflow — copy .github/workflows/api-lint.yml from this playbook repo",
+  };
+});
+
+// R3 — MCP server config exists (Discover stage)
+check("R3", "[Repo] MCP server config exists — Discover stage agent discoverability", () => {
+  const candidates = [
+    "mcp-server.json",
+    "mcp/mcp-server.json",
+    ".kiro/settings/mcp.json",
+    "claude_desktop_config.json",
+  ];
+  const found = findUpGlob(candidates, specDir);
+  return {
+    pass: !!found,
+    warn: !found,
+    detail: found ? `Found: ${path.relative(specDir, found)}` : "No MCP server config found",
+    fix: "Generate an MCP server config from your spec — see mcp/mapping-guide.md",
+  };
+});
+
+// R4 — Deprecation runway template exists and has dates filled in (Sunset stage)
+check("R4", "[Repo] Deprecation runway template exists with dates — Sunset stage", () => {
+  const found = findUpGlob([
+    "governance/deprecation-runway.md",
+    "deprecation-runway.md",
+  ], specDir);
+  if (!found) {
+    return {
+      pass: false,
+      detail: "No deprecation-runway.md found",
+      fix: "Add governance/deprecation-runway.md — copy from this playbook repo",
+    };
+  }
+  const content = fs.readFileSync(found, "utf8");
+  // Check if placeholder dates have been replaced with real dates
+  const hasPlaceholder = content.includes("[YYYY-MM-DD]");
+  return {
+    pass: !hasPlaceholder,
+    warn: hasPlaceholder,
+    detail: hasPlaceholder
+      ? `Found deprecation-runway.md but dates are still placeholders`
+      : `Found deprecation-runway.md with dates filled in`,
+    fix: "Fill in the announce and sunset dates in governance/deprecation-runway.md",
+  };
+});
+
 // ─── Score ───────────────────────────────────────────────────────────────────
 
 const passed = checks.filter((c) => c.pass).length;

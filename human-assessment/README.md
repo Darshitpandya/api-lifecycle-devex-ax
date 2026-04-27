@@ -17,6 +17,7 @@ Run the scanner first to catch everything objectively verifiable. Then use these
 | [`checklist.md`](checklist.md) | 12-item yes/no: is this specific API agent-ready? | 5 minutes |
 | [`lifecycle-scorecard.md`](lifecycle-scorecard.md) | 30-question self-assessment across all 6 lifecycle stages | Half a day (team) |
 | [`devex-metrics.md`](devex-metrics.md) | How to measure TTFHW, developer churn, onboarding drop-off | Setup: 1–2 days |
+| [`developer-churn-queries.md`](developer-churn-queries.md) | Ready-to-run SQL for AWS API Gateway, Kong, Nginx — churn + zombie detection | Run immediately |
 | [`api-product-metrics.md`](api-product-metrics.md) | Operational + business value metrics stack | Setup: 1–2 days |
 
 ---
