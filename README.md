@@ -240,12 +240,29 @@ Great DevEx and great AX share the same foundations — good specs, clear naming
 
 Open this repo in your AI coding tool and say **"make my API agent-ready"** — it works automatically.
 
-| Tool | Context file | Behaviour |
+| Tool | Context file | Skills / Commands |
 |---|---|---|
-| **Kiro** | `.kiro/steering/` | `project.md` always loaded · `api-patterns.md` on YAML files · `mcp-patterns.md` on mcp/ files |
-| **Claude Code** | `CLAUDE.md` | Full project context, lint commands, pattern guide |
-| **Cursor** | `.cursorrules` | Inline rules for spec annotation and MCP mapping |
-| **GitHub Copilot** | `.github/copilot-instructions.md` | Suggestion context for OpenAPI edits |
+| **Any AI tool** | `AGENTS.md` | Universal context — loaded by any agent that follows the AGENTS.md convention |
+| **Kiro** | `.kiro/steering/` | `.kiro/skills/make-api-agent-ready.md` · `scan-api-readiness.md` · `generate-mcp-config.md` |
+| **Claude Code** | `CLAUDE.md` | `/make-api-agent-ready` · `/scan-api` · `/generate-mcp` |
+| **Cursor** | `.cursorrules` | No native skills — context loaded automatically |
+| **GitHub Copilot** | `.github/copilot-instructions.md` | No native skills — context loaded automatically |
+
+### Kiro skills (`.kiro/skills/`)
+
+| Skill | Trigger phrase |
+|---|---|
+| `make-api-agent-ready` | "make my API agent-ready" / "add x-capability to this spec" |
+| `scan-api-readiness` | "scan this spec" / "check agent-readiness" / "score this API" |
+| `generate-mcp-config` | "generate MCP config" / "make this discoverable by agents" |
+
+### Claude Code slash commands (`.claude/commands/`)
+
+| Command | What it does |
+|---|---|
+| `/make-api-agent-ready` | Annotates a spec with x-capability, fixes errors, runs lint + scan |
+| `/scan-api <spec>` | Runs the scanner and explains every failure |
+| `/generate-mcp <spec>` | Generates MCP server config from an enriched spec |
 
 ---
 
