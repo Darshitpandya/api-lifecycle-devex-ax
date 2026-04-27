@@ -5,6 +5,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-green)](01-spec-pattern/schema/capability-schema.json)
 [![Spectral](https://img.shields.io/badge/Linting-Spectral-blue)](02-governance/.spectral.yml)
+[![platformpioneer.io](https://img.shields.io/badge/by-platformpioneer.io-0066cc)](https://platformpioneer.io)
+
+> Authored by **[Darshit Pandya](https://platformpioneer.io)** · Senior Principal Engineer – Platform @ Serko · AWS Community Builder
+> Open source — fork it, adapt it, contribute back.
 
 ---
 
@@ -264,11 +268,20 @@ Open this repo in your AI coding tool and say **"make my API agent-ready"** — 
 
 ---
 
+---
+
 ## License
 
 MIT — fork it, adapt it, ship it.
 
 ---
 
+**Authored by [Darshit Pandya](https://platformpioneer.io)**
+Senior Principal Engineer – Platform @ Serko · AWS Community Builder · Auckland, New Zealand
+
+> *"The lifecycle is the product. The intent is the interface."*
+
+Part of the **[platformpioneer.io](https://platformpioneer.io)** open-source playbook series.
+Contributions welcome — see [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md).
+
 *From the talk: **"The API Product Playbook: Managing the Full Lifecycle for a World-Class DevEx"** — NZ Tech Rally 2026*
-*Speaker: Darshit Pandya, Senior Principal Engineer – Platform @ Serko, AWS Community Builder*

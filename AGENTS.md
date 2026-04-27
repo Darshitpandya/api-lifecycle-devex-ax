@@ -1,5 +1,7 @@
 # AGENTS.md — api-lifecycle-devex-ax
 
+> A [platformpioneer.io](https://platformpioneer.io) open-source playbook by [Darshit Pandya](https://platformpioneer.io)
+
 Universal context for AI agents and coding tools working in this repo.
 
 ## What this repo is
