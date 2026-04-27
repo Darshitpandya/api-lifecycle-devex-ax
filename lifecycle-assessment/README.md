@@ -4,7 +4,7 @@ Tools for assessing API readiness that require human judgment, gateway telemetry
 
 ## When to use this
 
-Use these **alongside** the automated scanner (`automated-assessment/`), not instead of it.
+Use these **alongside** the automated scanner (`readiness-scanner/`), not instead of it.
 
 Run the scanner first to catch everything objectively verifiable. Then use these tools to assess the dimensions the scanner can't see.
 

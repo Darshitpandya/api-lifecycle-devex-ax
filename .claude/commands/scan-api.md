@@ -13,7 +13,7 @@ Run the automated agent-readiness scanner on an OpenAPI spec and explain the res
 ## Usage
 
 ```
-/scan-api ../examples/before.yaml
+/scan-api ../api-transformation/before.yaml
 /scan-api path/to/your-spec.yaml
 /scan-api path/to/your-spec.yaml --format json
 ```

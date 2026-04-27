@@ -19,7 +19,7 @@ How to turn your intent-enriched OpenAPI spec into MCP tool definitions that AI 
 
 ## Worked Example
 
-**OpenAPI operation (from `examples/after.yaml`):**
+**OpenAPI operation (from `api-transformation/after.yaml`):**
 
 ```yaml
 /orders:

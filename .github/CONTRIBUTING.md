@@ -21,7 +21,7 @@ Contributions welcome. The goal is to keep this repo thin, practical, and immedi
 1. Fork the repo
 2. Create a branch: `git checkout -b your-change`
 3. Make your change
-4. Validate any OpenAPI spec changes: `cd governance && npm install && npm run lint:api -- --spec ../examples/after.yaml`
+4. Validate any OpenAPI spec changes: `cd governance && npm install && npm run lint:api -- --spec ../api-transformation/after.yaml`
 5. Open a pull request with a clear description of what changed and why
 
 ## Principles

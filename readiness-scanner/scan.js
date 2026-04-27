@@ -74,7 +74,7 @@ check("C1", "x-capability present on all operations", () => {
     detail: missing.length === 0
       ? `All ${operations.length} operations have x-capability`
       : `Missing on: ${missing.map((o) => `${o.method.toUpperCase()} ${o.path}`).join(", ")}`,
-    fix: "Add x-capability to each operation. See spec/capability-schema.json",
+    fix: "Add x-capability to each operation. See x-capability-schema/capability-schema.json",
   };
 });
 
@@ -236,11 +236,11 @@ function findUpGlob(patterns, startDir) {
 
 // R1 — Spectral ruleset exists (Design stage)
 check("R1", "[Repo] Spectral ruleset exists (.spectral.yml) — Design stage governance", () => {
-  const found = findUpGlob([".spectral.yml", ".spectral.yaml", "governance/.spectral.yml"], specDir);
+  const found = findUpGlob([".spectral.yml", ".spectral.yaml", "governance-as-code/.spectral.yml"], specDir);
   return {
     pass: !!found,
     detail: found ? `Found: ${path.relative(specDir, found)}` : "No .spectral.yml found in repo",
-    fix: "Add governance/.spectral.yml — copy from this playbook repo",
+    fix: "Add governance-as-code/.spectral.yml — copy from this playbook repo",
   };
 });
 
@@ -265,7 +265,7 @@ check("R2", "[Repo] GitHub Actions workflow exists — Build stage CI", () => {
 check("R3", "[Repo] MCP server config exists — Discover stage agent discoverability", () => {
   const candidates = [
     "mcp-server.json",
-    "mcp/mcp-server.json",
+    "openapi-to-mcp/mcp-server.json",
     ".kiro/settings/mcp.json",
     "claude_desktop_config.json",
   ];
@@ -274,21 +274,21 @@ check("R3", "[Repo] MCP server config exists — Discover stage agent discoverab
     pass: !!found,
     warn: !found,
     detail: found ? `Found: ${path.relative(specDir, found)}` : "No MCP server config found",
-    fix: "Generate an MCP server config from your spec — see mcp/mapping-guide.md",
+    fix: "Generate an MCP server config from your spec — see openapi-to-mcp/mapping-guide.md",
   };
 });
 
 // R4 — Deprecation runway template exists and has dates filled in (Sunset stage)
 check("R4", "[Repo] Deprecation runway template exists with dates — Sunset stage", () => {
   const found = findUpGlob([
-    "governance/deprecation-runway.md",
+    "governance-as-code/deprecation-runway.md",
     "deprecation-runway.md",
   ], specDir);
   if (!found) {
     return {
       pass: false,
       detail: "No deprecation-runway.md found",
-      fix: "Add governance/deprecation-runway.md — copy from this playbook repo",
+      fix: "Add governance-as-code/deprecation-runway.md — copy from this playbook repo",
     };
   }
   const content = fs.readFileSync(found, "utf8");
@@ -300,7 +300,7 @@ check("R4", "[Repo] Deprecation runway template exists with dates — Sunset sta
     detail: hasPlaceholder
       ? `Found deprecation-runway.md but dates are still placeholders`
       : `Found deprecation-runway.md with dates filled in`,
-    fix: "Fill in the announce and sunset dates in governance/deprecation-runway.md",
+    fix: "Fill in the announce and sunset dates in governance-as-code/deprecation-runway.md",
   };
 });
 

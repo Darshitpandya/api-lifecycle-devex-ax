@@ -34,5 +34,5 @@ jobs:
           echo "Linting specs: $SPECS"
           for SPEC in $SPECS; do
             echo "--- Linting $SPEC ---"
-            spectral lint "$SPEC" --ruleset governance/.spectral.yml
+            spectral lint "$SPEC" --ruleset governance-as-code/.spectral.yml
           done

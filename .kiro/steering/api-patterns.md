@@ -43,4 +43,4 @@ responses:
 
 After editing any spec: `cd governance && npm run lint:api -- --spec ../your-spec.yaml`
 
-See `examples/after.yaml` for the complete reference implementation.
+See `api-transformation/after.yaml` for the complete reference implementation.

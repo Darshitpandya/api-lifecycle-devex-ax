@@ -10,8 +10,8 @@ Annotate an OpenAPI spec with `x-capability` metadata so it works for humans, pi
 ## Steps
 
 1. **Read the spec** — load the target OpenAPI YAML file
-2. **Read the schema** — load `spec/capability-schema.json` to understand required fields
-3. **Read the example** — load `examples/after.yaml` to see the pattern in practice
+2. **Read the schema** — load `x-capability-schema/capability-schema.json` to understand required fields
+3. **Read the example** — load `api-transformation/after.yaml` to see the pattern in practice
 4. **Annotate each operation** — add `x-capability` with:
    - `intent`: plain-language description of what this operation accomplishes (not how)
    - `domain`: business domain (e.g. commerce, identity, fulfillment)

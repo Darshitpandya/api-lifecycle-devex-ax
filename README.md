@@ -3,8 +3,8 @@
 > The production-ready playbook for APIs that deliver world-class **DevEx** and **AX (Agent Experience)** — for humans, pipelines, and AI agents.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-green)](spec/capability-schema.json)
-[![Spectral](https://img.shields.io/badge/Linting-Spectral-blue)](governance/.spectral.yml)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-green)](x-capability-schema/capability-schema.json)
+[![Spectral](https://img.shields.io/badge/Linting-Spectral-blue)](governance-as-code/.spectral.yml)
 
 ---
 
@@ -84,7 +84,7 @@ The shift from endpoint-thinking to intent-thinking is 15 lines of YAML per oper
 
 A human developer reads `intent` and understands the purpose. An AI agent reads `intent` to decide whether this tool solves its current task. An agent reads `safety: mutating` to decide whether to proceed automatically or request confirmation.
 
-See the full transformation: [`examples/before.yaml`](examples/before.yaml) → [`examples/after.yaml`](examples/after.yaml)
+See the full transformation: [`api-transformation/before.yaml`](api-transformation/before.yaml) → [`api-transformation/after.yaml`](api-transformation/after.yaml)
 
 ---
 
@@ -141,7 +141,7 @@ node scan.js --spec ../your-spec.yaml
 Runs 10 checks. Outputs a Markdown or JSON report. Exit code 1 on failures — integrates with any CI gate.
 Also available as a GitHub Actions workflow that posts the report as a PR comment: `.github/workflows/api-scan.yml`
 
-→ **[`automated-assessment/`](automated-assessment/)** — full docs, CI setup, check list
+→ **[`readiness-scanner/`](readiness-scanner/)** — full docs, CI setup, check list
 
 ---
 
@@ -150,12 +150,12 @@ Also available as a GitHub Actions workflow that posts the report as a PR commen
 
 | Tool | What it covers | Time |
 |---|---|---|
-| [`checklist.md`](human-assessment/checklist.md) | 12-item yes/no for a specific API | 5 min |
-| [`lifecycle-scorecard.md`](human-assessment/lifecycle-scorecard.md) | 30-question self-assessment, 6 lifecycle stages | Half a day |
-| [`devex-metrics.md`](human-assessment/devex-metrics.md) | How to measure TTFHW and developer churn | Setup: 1–2 days |
-| [`api-product-metrics.md`](human-assessment/api-product-metrics.md) | Operational + business value metrics | Setup: 1–2 days |
+| [`checklist.md`](lifecycle-assessment/checklist.md) | 12-item yes/no for a specific API | 5 min |
+| [`lifecycle-scorecard.md`](lifecycle-assessment/lifecycle-scorecard.md) | 30-question self-assessment, 6 lifecycle stages | Half a day |
+| [`devex-metrics.md`](lifecycle-assessment/devex-metrics.md) | How to measure TTFHW and developer churn | Setup: 1–2 days |
+| [`api-product-metrics.md`](lifecycle-assessment/api-product-metrics.md) | Operational + business value metrics | Setup: 1–2 days |
 
-→ **[`human-assessment/`](human-assessment/)** — full docs, what the scanner can't cover
+→ **[`lifecycle-assessment/`](lifecycle-assessment/)** — full docs, what the scanner can't cover
 
 ---
 
@@ -168,12 +168,12 @@ Also available as a GitHub Actions workflow that posts the report as a PR commen
 **Option 1 — Make one API agent-ready (30 min):**
 ```bash
 # 1. Fork this repo
-# 2. Open examples/after.yaml — see the pattern
-# 3. Add x-capability to your own spec (schema: spec/capability-schema.json)
+# 2. Open api-transformation/after.yaml — see the pattern
+# 3. Add x-capability to your own spec (schema: x-capability-schema/capability-schema.json)
 # 4. Lint — validates metadata is complete and correct
 cd governance && npm install && npm run lint:api -- --spec ../your-spec.yaml
 # 5. Generate MCP server config from your enriched spec
-#    Follow mcp/mapping-guide.md to produce a config like:
+#    Follow openapi-to-mcp/mapping-guide.md to produce a config like:
 #    { "mcpServers": { "your-api": { ... } } }
 # 6. Register with your MCP host:
 #    - Claude Desktop: add to ~/.config/claude/claude_desktop_config.json
@@ -189,7 +189,7 @@ cd governance && npm install && npm run lint:api -- --spec ../your-spec.yaml
 **Option 2 — Enforce across your team (1 hour):**
 ```bash
 # npm — Mac / Windows / Linux
-cp governance/package.json your-repo/ && npm install
+cp governance-as-code/package.json your-repo/ && npm install
 npm run lint:api -- --spec your-spec.yaml
 
 # GitHub Actions — zero local setup, runs on every PR
@@ -200,7 +200,7 @@ make lint-api SPEC=your-spec.yaml
 ```
 
 **Option 3 — Assess your API program (half day):**
-Open [`human-assessment/lifecycle-scorecard.md`](human-assessment/lifecycle-scorecard.md) — 30 questions, 6 stages, score 1–5. Find the weakest stage. Start there.
+Open [`lifecycle-assessment/lifecycle-scorecard.md`](lifecycle-assessment/lifecycle-scorecard.md) — 30 questions, 6 stages, score 1–5. Find the weakest stage. Start there.
 
 ---
 
@@ -208,17 +208,17 @@ Open [`human-assessment/lifecycle-scorecard.md`](human-assessment/lifecycle-scor
 
 | Path | What it is |
 |---|---|
-| `examples/before.yaml` | A typical API spec — no intent metadata |
-| `examples/after.yaml` | Same spec — agent-ready **(start here)** |
-| `spec/capability-schema.json` | JSON Schema for the `x-capability` extension |
-| `governance/.spectral.yml` | 5 lint rules — drop into CI today |
-| `governance/package.json` | `npm run lint:api` — Mac / Windows / Linux |
-| `governance/Makefile` | `make lint-api` — platform engineers |
+| `api-transformation/before.yaml` | A typical API spec — no intent metadata |
+| `api-transformation/after.yaml` | Same spec — agent-ready **(start here)** |
+| `x-capability-schema/capability-schema.json` | JSON Schema for the `x-capability` extension |
+| `governance-as-code/.spectral.yml` | 5 lint rules — drop into CI today |
+| `governance-as-code/package.json` | `npm run lint:api` — Mac / Windows / Linux |
+| `governance-as-code/Makefile` | `make lint-api` — platform engineers |
 | `.github/workflows/api-lint.yml` | GitHub Actions lint — runs on every PR |
-| `governance/deprecation-runway.md` | 4-stage deprecation template (RFC 8594) |
-| `mcp/mapping-guide.md` | OpenAPI → MCP tool definitions |
-| **`automated-assessment/`** | **Scanner CLI — 10 checks, Markdown/JSON report, CI workflow** |
-| **`human-assessment/`** | **Checklist, scorecard, DevEx + metrics guides** |
+| `governance-as-code/deprecation-runway.md` | 4-stage deprecation template (RFC 8594) |
+| `openapi-to-mcp/mapping-guide.md` | OpenAPI → MCP tool definitions |
+| **`readiness-scanner/`** | **Scanner CLI — 10 checks, Markdown/JSON report, CI workflow** |
+| **`lifecycle-assessment/`** | **Checklist, scorecard, DevEx + metrics guides** |
 
 ---
 

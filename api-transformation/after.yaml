@@ -11,7 +11,7 @@ paths:
       summary: Create a new order
       tags: [orders]
       # x-capability: intent metadata for DevEx and AX (Agent Experience)
-      # See spec/capability-schema.json for the full schema
+      # See x-capability-schema/capability-schema.json for the full schema
       x-capability:
         intent: "Create a commerce order with payment capture and inventory reservation"
         domain: commerce

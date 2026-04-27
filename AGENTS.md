@@ -18,14 +18,14 @@ A production-ready playbook for APIs that deliver world-class **DevEx** (Develop
 
 | File | Purpose |
 |---|---|
-| `spec/capability-schema.json` | JSON Schema for `x-capability` |
-| `examples/before.yaml` | Typical API spec — no intent metadata |
-| `examples/after.yaml` | Same spec — agent-ready (reference implementation) |
-| `governance/.spectral.yml` | 5 lint rules enforcing agent-readiness |
-| `mcp/mapping-guide.md` | OpenAPI → MCP tool definitions |
-| `automated-assessment/scan.js` | CLI scanner — 14 checks, Markdown/JSON report |
-| `human-assessment/lifecycle-scorecard.md` | 30-question self-assessment |
-| `human-assessment/devex-metrics.md` | TTFHW and developer churn measurement |
+| `x-capability-schema/capability-schema.json` | JSON Schema for `x-capability` |
+| `api-transformation/before.yaml` | Typical API spec — no intent metadata |
+| `api-transformation/after.yaml` | Same spec — agent-ready (reference implementation) |
+| `governance-as-code/.spectral.yml` | 5 lint rules enforcing agent-readiness |
+| `openapi-to-mcp/mapping-guide.md` | OpenAPI → MCP tool definitions |
+| `readiness-scanner/scan.js` | CLI scanner — 14 checks, Markdown/JSON report |
+| `lifecycle-assessment/lifecycle-scorecard.md` | 30-question self-assessment |
+| `lifecycle-assessment/devex-metrics.md` | TTFHW and developer churn measurement |
 
 ## When annotating OpenAPI specs
 
@@ -61,4 +61,4 @@ cd automated-assessment && npm install && node scan.js --spec ../your-spec.yaml
 - `x-capability.intent` → tool `description`
 - Request body schema → `inputSchema`
 
-See `mcp/mapping-guide.md` for the full guide.
+See `openapi-to-mcp/mapping-guide.md` for the full guide.

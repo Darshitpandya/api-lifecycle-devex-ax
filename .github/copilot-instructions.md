@@ -6,10 +6,10 @@ This is the api-lifecycle-devex-ax repo — a production-ready playbook for APIs
 Make existing APIs discoverable and consumable by AI agents using intent-enriched OpenAPI specs with `x-capability` metadata, without rewriting anything.
 
 ## Key references
-- `spec/capability-schema.json` — defines the `x-capability` extension schema
-- `examples/after.yaml` — reference implementation of an intent-enriched API spec
-- `governance/.spectral.yml` — enforces agent-readiness rules
-- `mcp/mapping-guide.md` — maps OpenAPI operations to MCP tools
+- `x-capability-schema/capability-schema.json` — defines the `x-capability` extension schema
+- `api-transformation/after.yaml` — reference implementation of an intent-enriched API spec
+- `governance-as-code/.spectral.yml` — enforces agent-readiness rules
+- `openapi-to-mcp/mapping-guide.md` — maps OpenAPI operations to MCP tools
 
 ## When writing or modifying OpenAPI specs
 - Add `x-capability` to every operation with `intent`, `domain`, and `safety` fields
