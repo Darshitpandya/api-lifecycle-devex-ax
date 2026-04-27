@@ -3,8 +3,8 @@
 > The production-ready playbook for APIs that deliver world-class **DevEx** and **AX (Agent Experience)** — for humans, pipelines, and AI agents.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-green)](x-capability-schema/capability-schema.json)
-[![Spectral](https://img.shields.io/badge/Linting-Spectral-blue)](governance-as-code/.spectral.yml)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-green)](01-spec-pattern/schema/capability-schema.json)
+[![Spectral](https://img.shields.io/badge/Linting-Spectral-blue)](02-governance/.spectral.yml)
 
 ---
 
@@ -84,7 +84,7 @@ The shift from endpoint-thinking to intent-thinking is 15 lines of YAML per oper
 
 A human developer reads `intent` and understands the purpose. An AI agent reads `intent` to decide whether this tool solves its current task. An agent reads `safety: mutating` to decide whether to proceed automatically or request confirmation.
 
-See the full transformation: [`api-transformation/before.yaml`](api-transformation/before.yaml) → [`api-transformation/after.yaml`](api-transformation/after.yaml)
+See the full transformation: [`01-spec-pattern/before.yaml`](01-spec-pattern/before.yaml) → [`01-spec-pattern/after.yaml`](01-spec-pattern/after.yaml)
 
 ---
 
@@ -134,14 +134,14 @@ Choose the approach that fits your situation — or use both.
 **For:** Any OpenAPI spec, any machine, any org. Instant. No human judgment needed.
 
 ```bash
-cd readiness-scanner && npm install
+cd tools && npm install
 node scan.js --spec ../your-spec.yaml
 ```
 
 Runs 14 checks (10 spec + 4 repo structure). Outputs a Markdown or JSON report. Exit code 1 on hard failures — integrates with any CI gate. R3/R4 show as `ℹ️ Next step` (template-expected) not failures.
 Also available as a GitHub Actions workflow that posts the report as a PR comment: `.github/workflows/api-scan.yml`
 
-→ **[`readiness-scanner/`](readiness-scanner/)** — full docs, CI setup, check list
+→ **[`tools/`](tools/)** — full docs, CI setup, check list
 
 ---
 
@@ -150,12 +150,12 @@ Also available as a GitHub Actions workflow that posts the report as a PR commen
 
 | Tool | What it covers | Time |
 |---|---|---|
-| [`checklist.md`](lifecycle-assessment/checklist.md) | 12-item yes/no for a specific API | 5 min |
-| [`lifecycle-scorecard.md`](lifecycle-assessment/lifecycle-scorecard.md) | 30-question self-assessment, 6 lifecycle stages | Half a day |
-| [`devex-metrics.md`](lifecycle-assessment/devex-metrics.md) | How to measure TTFHW and developer churn | Setup: 1–2 days |
-| [`api-product-metrics.md`](lifecycle-assessment/api-product-metrics.md) | Operational + business value metrics | Setup: 1–2 days |
+| [`checklist.md`](04-measure/checklist.md) | 12-item yes/no for a specific API | 5 min |
+| [`lifecycle-scorecard.md`](04-measure/lifecycle-scorecard.md) | 30-question self-assessment, 6 lifecycle stages | Half a day |
+| [`devex-metrics.md`](04-measure/devex-metrics.md) | How to measure TTFHW and developer churn | Setup: 1–2 days |
+| [`api-product-metrics.md`](04-measure/api-product-metrics.md) | Operational + business value metrics | Setup: 1–2 days |
 
-→ **[`lifecycle-assessment/`](lifecycle-assessment/)** — full docs, what the scanner can't cover
+→ **[`04-measure/`](04-measure/)** — full docs, what the scanner can't cover
 
 ---
 
@@ -168,12 +168,12 @@ Also available as a GitHub Actions workflow that posts the report as a PR commen
 **Option 1 — Make one API agent-ready (30 min):**
 ```bash
 # 1. Fork this repo
-# 2. Open api-transformation/after.yaml — see the pattern
-# 3. Add x-capability to your own spec (schema: x-capability-schema/capability-schema.json)
+# 2. Open 01-spec-pattern/after.yaml — see the pattern
+# 3. Add x-capability to your own spec (schema: 01-spec-pattern/schema/capability-schema.json)
 # 4. Lint — validates metadata is complete and correct
 cd governance && npm install && npm run lint:api -- --spec ../your-spec.yaml
 # 5. Generate MCP server config from your enriched spec
-#    Follow openapi-to-mcp/mapping-guide.md to produce a config like:
+#    Follow 03-agent-bridge/mapping-guide.md to produce a config like:
 #    { "mcpServers": { "your-api": { ... } } }
 # 6. Register with your MCP host:
 #    - Claude Desktop: add to ~/.config/claude/claude_desktop_config.json
@@ -189,7 +189,7 @@ cd governance && npm install && npm run lint:api -- --spec ../your-spec.yaml
 **Option 2 — Enforce across your team (1 hour):**
 ```bash
 # npm — Mac / Windows / Linux
-cp governance-as-code/package.json your-repo/ && npm install
+cp 02-governance/package.json your-repo/ && npm install
 npm run lint:api -- --spec your-spec.yaml
 
 # GitHub Actions — zero local setup, runs on every PR
@@ -200,26 +200,21 @@ make lint-api SPEC=your-spec.yaml
 ```
 
 **Option 3 — Assess your API program (half day):**
-Open [`lifecycle-assessment/lifecycle-scorecard.md`](lifecycle-assessment/lifecycle-scorecard.md) — 30 questions, 6 stages, score 1–5. Find the weakest stage. Start there.
+Open [`04-measure/lifecycle-scorecard.md`](04-measure/lifecycle-scorecard.md) — 30 questions, 6 stages, score 1–5. Find the weakest stage. Start there.
 
 ---
 
 ## What's Inside
 
-| Path | What it is |
-|---|---|
-| `api-transformation/before.yaml` | A typical API spec — no intent metadata |
-| `api-transformation/after.yaml` | Same spec — agent-ready **(start here)** |
-| `x-capability-schema/capability-schema.json` | JSON Schema for the `x-capability` extension |
-| `governance-as-code/.spectral.yml` | 5 lint rules — drop into CI today |
-| `governance-as-code/package.json` | `npm run lint:api` — Mac / Windows / Linux |
-| `governance-as-code/Makefile` | `make lint-api` — platform engineers |
-| `.github/workflows/api-lint.yml` | GitHub Actions lint — runs on every PR |
-| `governance-as-code/deprecation-runway.md` | 4-stage deprecation template (RFC 8594) |
-| `openapi-to-mcp/mapping-guide.md` | OpenAPI → MCP tool definitions |
-| **`readiness-scanner/`** | **Automated scanner — 14 checks, Markdown/JSON report, CI workflow** |
-| **`lifecycle-assessment/measuring-devex-ax.md`** | **DevEx, AX, and pipeline measurement — metrics, formulas, targets** |
-| **`lifecycle-assessment/`** | **Checklist, scorecard, DevEx + AX metrics, churn SQL queries** |
+The repo is structured as a numbered journey — follow the folders in order:
+
+| Folder | What it is | Start here if... |
+|---|---|---|
+| [`01-spec-pattern/`](01-spec-pattern/) | Before/after specs + x-capability schema. Commerce, identity, and payments examples. | You want to see the transformation |
+| [`02-governance/`](02-governance/) | Spectral lint rules, CI scripts (npm/make/GitHub Actions), deprecation runway, security scanning pointer | You want to enforce this in your team |
+| [`03-agent-bridge/`](03-agent-bridge/) | OpenAPI → MCP tool mapping guide + worked example | You want agents to discover your API |
+| [`04-measure/`](04-measure/) | DevEx, AX, and pipeline metrics. Scorecard, checklist, churn SQL queries (AWS/Kong/Nginx). | You want to measure and assess |
+| [`tools/`](tools/) | Automated readiness scanner — 14 checks, Markdown/JSON report, GitHub Actions CI | You want to scan any spec instantly |
 
 ---
 
@@ -229,13 +224,13 @@ This playbook covers all three consumer types. Each has its own measurement fram
 
 | Consumer | Term | Key metric | Target | Guide |
 |---|---|---|---|---|
-| 👩‍💻 Human | **DevEx** | TTFHW (Time to First Hello World) | < 15 minutes | [`measuring-devex-ax.md`](lifecycle-assessment/measuring-devex-ax.md) |
-| 🔧 Pipeline | **Reliability** | Contract pass rate | 100% | [`measuring-devex-ax.md`](lifecycle-assessment/measuring-devex-ax.md) |
-| 🤖 Agent | **AX** | Intent resolution rate | > 90% | [`measuring-devex-ax.md`](lifecycle-assessment/measuring-devex-ax.md) |
+| 👩‍💻 Human | **DevEx** | TTFHW (Time to First Hello World) | < 15 minutes | [`measuring-devex-ax.md`](04-measure/measuring-devex-ax.md) |
+| 🔧 Pipeline | **Reliability** | Contract pass rate | 100% | [`measuring-devex-ax.md`](04-measure/measuring-devex-ax.md) |
+| 🤖 Agent | **AX** | Intent resolution rate | > 90% | [`measuring-devex-ax.md`](04-measure/measuring-devex-ax.md) |
 
 **World-class DevEx** = TTFHW under 15 minutes. **World-class AX** = agents select the right tool > 90% of the time and succeed on first invocation > 80% of the time.
 
-The scanner (`readiness-scanner/`) checks the spec foundations. Runtime measurement requires gateway telemetry — see [`lifecycle-assessment/measuring-devex-ax.md`](lifecycle-assessment/measuring-devex-ax.md) for queries and formulas.
+The scanner (`tools/`) checks the spec foundations. Runtime measurement requires gateway telemetry — see [`04-measure/measuring-devex-ax.md`](04-measure/measuring-devex-ax.md) for queries and formulas.
 
 ---
 

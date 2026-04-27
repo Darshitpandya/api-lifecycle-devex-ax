@@ -28,8 +28,8 @@ Is your API ready to be consumed by AI agents?
 
 ## Next Steps
 
-- Add `x-capability` to your spec: see [`x-capability-schema/capability-schema.json`](x-capability-schema/capability-schema.json)
-- See the transformation: [`api-transformation/before.yaml`](api-transformation/before.yaml) → [`api-transformation/after.yaml`](api-transformation/after.yaml)
-- Lint your spec: [`governance-as-code/.spectral.yml`](governance-as-code/.spectral.yml)
-- Map to MCP: [`openapi-to-mcp/mapping-guide.md`](openapi-to-mcp/mapping-guide.md)
+- Add `x-capability` to your spec: see [`01-spec-pattern/schema/capability-schema.json`](01-spec-pattern/schema/capability-schema.json)
+- See the transformation: [`01-spec-pattern/before.yaml`](01-spec-pattern/before.yaml) → [`01-spec-pattern/after.yaml`](01-spec-pattern/after.yaml)
+- Lint your spec: [`02-governance/.spectral.yml`](02-governance/.spectral.yml)
+- Map to MCP: [`03-agent-bridge/mapping-guide.md`](03-agent-bridge/mapping-guide.md)
 - Rate your full API program: [`scorecard/lifecycle-scorecard.md`](scorecard/lifecycle-scorecard.md)

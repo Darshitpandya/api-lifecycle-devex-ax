@@ -5,7 +5,7 @@ on:
     paths:
       - "**/*.yaml"
       - "**/*.yml"
-      - "!governance-as-code/**"
+      - "!02-governance/**"
       - "!.github/**"
       - "!scanner/**"
 
@@ -31,7 +31,7 @@ jobs:
         run: |
           SPECS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
             | grep -E '\.(yaml|yml)$' \
-            | grep -v 'governance-as-code/' \
+            | grep -v '02-governance/' \
             | grep -v '.github/' \
             | grep -v 'scanner/' \
             || true)

@@ -4,7 +4,7 @@ Run the automated agent-readiness scanner on an OpenAPI spec and explain the res
 
 ## What I'll do
 
-1. Run: `cd readiness-scanner && npm install && node scan.js --spec $ARGUMENTS`
+1. Run: `cd tools && npm install && node scan.js --spec $ARGUMENTS`
 2. Parse all ❌ failures and ⚠️ warnings
 3. Explain each failure in plain language — what it means, why it matters, how to fix it
 4. Group fixes by effort: quick wins vs. structural changes
@@ -13,7 +13,7 @@ Run the automated agent-readiness scanner on an OpenAPI spec and explain the res
 ## Usage
 
 ```
-/scan-api ../api-transformation/before.yaml
+/scan-api ../01-spec-pattern/before.yaml
 /scan-api path/to/your-spec.yaml
 /scan-api path/to/your-spec.yaml --format json
 ```

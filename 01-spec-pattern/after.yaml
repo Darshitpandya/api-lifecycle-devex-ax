@@ -3,15 +3,31 @@ info:
   title: Commerce API
   version: "1.0.0"
   description: API for managing orders and inventory.
+  contact:
+    name: Platform Engineering
+    email: platform@example.com
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production
+  - url: https://sandbox.api.example.com/v1
+    description: Sandbox (safe for testing)
+
+tags:
+  - name: orders
+    description: Order lifecycle management
+  - name: inventory
+    description: Inventory availability checks
 
 paths:
   /orders:
     post:
       operationId: createOrder
       summary: Create a new order
+      description: Creates a commerce order, captures payment, and reserves inventory. Idempotent when an Idempotency-Key header is provided.
       tags: [orders]
       # x-capability: intent metadata for DevEx and AX (Agent Experience)
-      # See x-capability-schema/capability-schema.json for the full schema
+      # See 01-spec-pattern/schema/capability-schema.json for the full schema
       x-capability:
         intent: "Create a commerce order with payment capture and inventory reservation"
         domain: commerce
@@ -80,6 +96,7 @@ paths:
     get:
       operationId: getOrder
       summary: Get an order by ID
+      description: Returns the current status and full details of a specific order. Safe to call repeatedly — no side effects.
       tags: [orders]
       x-capability:
         intent: "Retrieve the current status and details of a specific order"
@@ -114,6 +131,7 @@ paths:
     delete:
       operationId: cancelOrder
       summary: Cancel an order
+      description: Cancels an existing order. If payment was captured, triggers a refund. If inventory was reserved, releases it. Irreversible once fulfilled.
       tags: [orders]
       x-capability:
         intent: "Cancel an existing order and trigger refund if payment was captured"
@@ -157,6 +175,7 @@ paths:
     get:
       operationId: checkInventory
       summary: Check inventory for a SKU
+      description: Returns the current available and reserved inventory level for a product SKU. Call before createOrder to confirm stock availability.
       tags: [inventory]
       x-capability:
         intent: "Check available inventory level for a product SKU before placing an order"

@@ -1,0 +1,282 @@
+openapi: "3.1.0"
+info:
+  title: Identity API
+  version: "1.0.0"
+  description: API for user authentication, session management, and access control.
+  contact:
+    name: Platform Engineering
+    email: platform@example.com
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production
+  - url: https://sandbox.api.example.com/v1
+    description: Sandbox
+
+tags:
+  - name: auth
+    description: Authentication and session management
+  - name: users
+    description: User profile and access management
+
+paths:
+  /auth/token:
+    post:
+      operationId: issueToken
+      summary: Issue an access token
+      description: Authenticates a user or service and issues a scoped access token. Use before calling any protected API operation.
+      tags: [auth]
+      x-capability:
+        intent: "Authenticate a user or service and issue a scoped access token for API access"
+        domain: identity
+        workflow: user-authentication
+        side-effects:
+          - session-created
+          - audit-log-entry
+        composable-with:
+          - revokeToken
+          - getUserProfile
+        requires:
+          - valid-credentials
+        idempotency: not-supported
+        safety: mutating
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [grant_type]
+              properties:
+                grant_type:
+                  type: string
+                  enum: [password, client_credentials, refresh_token]
+                  description: OAuth 2.0 grant type
+                username:
+                  type: string
+                  description: Required for password grant
+                password:
+                  type: string
+                  format: password
+                  description: Required for password grant
+                client_id:
+                  type: string
+                client_secret:
+                  type: string
+                  format: password
+                refresh_token:
+                  type: string
+                scope:
+                  type: string
+                  description: Space-separated list of requested scopes
+      responses:
+        "200":
+          description: Token issued successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /auth/token/revoke:
+    post:
+      operationId: revokeToken
+      summary: Revoke an access token
+      description: Invalidates an active access or refresh token. Call on logout or when a token is compromised.
+      tags: [auth]
+      x-capability:
+        intent: "Invalidate an active access or refresh token to end a session or respond to a security event"
+        domain: identity
+        workflow: user-authentication
+        side-effects:
+          - session-terminated
+          - audit-log-entry
+        composable-with:
+          - issueToken
+        requires:
+          - authenticated-context
+          - valid-token
+        idempotency: natural
+        safety: mutating
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+                  description: The token to revoke
+                token_type_hint:
+                  type: string
+                  enum: [access_token, refresh_token]
+      responses:
+        "200":
+          description: Token revoked
+        "400":
+          description: Invalid token
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /users/{userId}:
+    get:
+      operationId: getUserProfile
+      summary: Get a user profile
+      description: Returns the profile, roles, and permission scopes for a specific user. Safe to call repeatedly.
+      tags: [users]
+      x-capability:
+        intent: "Retrieve a user's profile, roles, and permission scopes for authorisation decisions"
+        domain: identity
+        workflow: user-authentication
+        composable-with:
+          - issueToken
+          - updateUserRoles
+        requires:
+          - authenticated-context
+          - read:users scope
+        idempotency: natural
+        safety: safe
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "404":
+          description: User not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /users/{userId}/roles:
+    put:
+      operationId: updateUserRoles
+      summary: Update user roles
+      description: Replaces the full set of roles assigned to a user. Affects all active sessions immediately.
+      tags: [users]
+      x-capability:
+        intent: "Replace the roles assigned to a user, affecting their permissions across all active sessions"
+        domain: identity
+        workflow: access-management
+        side-effects:
+          - permissions-changed
+          - active-sessions-affected
+          - audit-log-entry
+        composable-with:
+          - getUserProfile
+        requires:
+          - authenticated-context
+          - admin:users scope
+        idempotency: natural
+        safety: mutating
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [roles]
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: string
+                  description: Complete list of roles to assign
+      responses:
+        "200":
+          description: Roles updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "403":
+          description: Insufficient permissions
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: User not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+components:
+  schemas:
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          enum: [Bearer]
+        expires_in:
+          type: integer
+          description: Seconds until expiry
+        refresh_token:
+          type: string
+        scope:
+          type: string
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        roles:
+          type: array
+          items:
+            type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+
+    ProblemDetails:
+      type: object
+      description: RFC 9457 Problem Details for HTTP APIs
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri

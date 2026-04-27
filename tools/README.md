@@ -47,4 +47,4 @@ Copy `.github/workflows/api-scan.yml` into your repo. It runs on every PR that t
 
 ## What this can't assess
 
-The scanner covers everything objectively verifiable from the spec. For TTFHW, developer churn, product ownership, and org maturity — see [`lifecycle-assessment/`](../lifecycle-assessment/).
+The scanner covers everything objectively verifiable from the spec. For TTFHW, developer churn, product ownership, and org maturity — see [`04-measure/`](../04-measure/).

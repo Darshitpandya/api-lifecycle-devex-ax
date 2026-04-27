@@ -5,7 +5,7 @@ on:
     paths:
       - "**/*.yaml"
       - "**/*.yml"
-      - "!governance-as-code/**"
+      - "!02-governance/**"
       - "!.github/**"
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
       - name: Lint changed OpenAPI specs
         run: |
           # Find all changed YAML files that look like OpenAPI specs
-          SPECS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(yaml|yml)$' | grep -v 'governance-as-code/' | grep -v '.github/' || true)
+          SPECS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(yaml|yml)$' | grep -v '02-governance/' | grep -v '.github/' || true)
           if [ -z "$SPECS" ]; then
             echo "No OpenAPI spec changes detected."
             exit 0
@@ -34,5 +34,5 @@ jobs:
           echo "Linting specs: $SPECS"
           for SPEC in $SPECS; do
             echo "--- Linting $SPEC ---"
-            spectral lint "$SPEC" --ruleset governance-as-code/.spectral.yml
+            spectral lint "$SPEC" --ruleset 02-governance/.spectral.yml
           done

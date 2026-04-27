@@ -18,14 +18,14 @@ A production-ready playbook for APIs that deliver world-class **DevEx** (Develop
 
 | File | Purpose |
 |---|---|
-| `x-capability-schema/capability-schema.json` | JSON Schema for `x-capability` |
-| `api-transformation/before.yaml` | Typical API spec — no intent metadata |
-| `api-transformation/after.yaml` | Same spec — agent-ready (reference implementation) |
-| `governance-as-code/.spectral.yml` | 5 lint rules enforcing agent-readiness |
-| `openapi-to-mcp/mapping-guide.md` | OpenAPI → MCP tool definitions |
-| `readiness-scanner/scan.js` | CLI scanner — 14 checks, Markdown/JSON report |
-| `lifecycle-assessment/lifecycle-scorecard.md` | 30-question self-assessment |
-| `lifecycle-assessment/devex-metrics.md` | TTFHW and developer churn measurement |
+| `01-spec-pattern/schema/capability-schema.json` | JSON Schema for `x-capability` |
+| `01-spec-pattern/before.yaml` | Typical API spec — no intent metadata |
+| `01-spec-pattern/after.yaml` | Same spec — agent-ready (reference implementation) |
+| `02-governance/.spectral.yml` | 5 lint rules enforcing agent-readiness |
+| `03-agent-bridge/mapping-guide.md` | OpenAPI → MCP tool definitions |
+| `tools/scan.js` | CLI scanner — 14 checks, Markdown/JSON report |
+| `04-measure/lifecycle-scorecard.md` | 30-question self-assessment |
+| `04-measure/devex-metrics.md` | TTFHW and developer churn measurement |
 
 ## When annotating OpenAPI specs
 
@@ -52,7 +52,7 @@ cd governance && npm install && npm run lint:api -- --spec ../your-spec.yaml
 ## Scan command (automated assessment)
 
 ```bash
-cd readiness-scanner && npm install && node scan.js --spec ../your-spec.yaml
+cd tools && npm install && node scan.js --spec ../your-spec.yaml
 ```
 
 ## When creating MCP tool definitions
@@ -61,4 +61,4 @@ cd readiness-scanner && npm install && node scan.js --spec ../your-spec.yaml
 - `x-capability.intent` → tool `description`
 - Request body schema → `inputSchema`
 
-See `openapi-to-mcp/mapping-guide.md` for the full guide.
+See `03-agent-bridge/mapping-guide.md` for the full guide.

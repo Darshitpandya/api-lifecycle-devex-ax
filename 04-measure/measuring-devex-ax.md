@@ -202,7 +202,7 @@ plugins:
 
 ## What the Scanner Checks (Automated)
 
-The `readiness-scanner/` checks the spec for the foundations that enable good DevEx and AX:
+The `tools/` checks the spec for the foundations that enable good DevEx and AX:
 
 | Check | DevEx impact | AX impact |
 |---|---|---|

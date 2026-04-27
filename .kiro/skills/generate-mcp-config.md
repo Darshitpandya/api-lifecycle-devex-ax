@@ -14,7 +14,7 @@ The spec must have `x-capability` on every operation. If not, run the `make-api-
 ## Steps
 
 1. **Read the spec** — load the target OpenAPI YAML
-2. **Read the mapping guide** — load `openapi-to-mcp/mapping-guide.md`
+2. **Read the mapping guide** — load `03-agent-bridge/mapping-guide.md`
 3. **Generate tool definitions** — for each operation:
    - `name` ← `operationId`
    - `description` ← `x-capability.intent`

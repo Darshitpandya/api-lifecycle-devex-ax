@@ -1,0 +1,306 @@
+openapi: "3.1.0"
+info:
+  title: Payments API
+  version: "1.0.0"
+  description: API for payment capture, refunds, and payment method management.
+  contact:
+    name: Platform Engineering
+    email: platform@example.com
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production
+  - url: https://sandbox.api.example.com/v1
+    description: Sandbox (no real charges)
+
+tags:
+  - name: payments
+    description: Payment capture and refund operations
+  - name: payment-methods
+    description: Payment method management
+
+paths:
+  /payments:
+    post:
+      operationId: capturePayment
+      summary: Capture a payment
+      description: Charges a payment method for a specified amount. Always provide an Idempotency-Key to prevent duplicate charges on retry.
+      tags: [payments]
+      x-capability:
+        intent: "Charge a payment method and capture funds for a transaction"
+        domain: payments
+        workflow: order-fulfillment
+        side-effects:
+          - funds-captured
+          - payment-record-created
+          - receipt-email-sent
+        composable-with:
+          - refundPayment
+          - getPayment
+        requires:
+          - authenticated-context
+          - valid-payment-method
+          - idempotency-key-recommended
+        idempotency: supported
+        safety: mutating
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, currency, payment_method_id]
+              properties:
+                amount:
+                  type: integer
+                  description: Amount in smallest currency unit (e.g. cents)
+                  minimum: 1
+                currency:
+                  type: string
+                  description: ISO 4217 currency code (e.g. NZD, USD)
+                  pattern: "^[A-Z]{3}$"
+                payment_method_id:
+                  type: string
+                  description: ID of the payment method to charge
+                description:
+                  type: string
+                  description: Human-readable description for the charge
+                metadata:
+                  type: object
+                  description: Arbitrary key-value pairs for your records
+      responses:
+        "201":
+          description: Payment captured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "402":
+          description: Payment declined
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "422":
+          description: Invalid payment details
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /payments/{paymentId}:
+    get:
+      operationId: getPayment
+      summary: Get a payment
+      description: Returns the current status and details of a specific payment. Safe to call repeatedly.
+      tags: [payments]
+      x-capability:
+        intent: "Retrieve the status and details of a specific payment transaction"
+        domain: payments
+        workflow: order-fulfillment
+        composable-with:
+          - capturePayment
+          - refundPayment
+        requires:
+          - authenticated-context
+        idempotency: natural
+        safety: safe
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Payment found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "404":
+          description: Payment not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /payments/{paymentId}/refund:
+    post:
+      operationId: refundPayment
+      summary: Refund a payment
+      description: Issues a full or partial refund for a captured payment. Partial refunds can be issued multiple times up to the original amount.
+      tags: [payments]
+      x-capability:
+        intent: "Issue a full or partial refund for a previously captured payment"
+        domain: payments
+        workflow: order-fulfillment
+        side-effects:
+          - funds-returned
+          - refund-record-created
+          - refund-email-sent
+        composable-with:
+          - getPayment
+        requires:
+          - authenticated-context
+          - payment-in-captured-state
+        idempotency: supported
+        safety: destructive
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  description: Amount to refund in smallest currency unit. Omit for full refund.
+                reason:
+                  type: string
+                  enum: [duplicate, fraudulent, requested_by_customer]
+      responses:
+        "200":
+          description: Refund issued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Refund"
+        "409":
+          description: Payment cannot be refunded in its current state
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "422":
+          description: Refund amount exceeds captured amount
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /payment-methods:
+    post:
+      operationId: addPaymentMethod
+      summary: Add a payment method
+      description: Tokenises and stores a payment method for future use. The raw card details are never stored — only the token.
+      tags: [payment-methods]
+      x-capability:
+        intent: "Tokenise and store a payment method for future charges without storing raw card details"
+        domain: payments
+        workflow: user-onboarding
+        side-effects:
+          - payment-method-stored
+          - tokenisation-audit-log
+        composable-with:
+          - capturePayment
+          - removePaymentMethod
+        requires:
+          - authenticated-context
+        idempotency: not-supported
+        safety: mutating
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, token]
+              properties:
+                type:
+                  type: string
+                  enum: [card, bank_account]
+                token:
+                  type: string
+                  description: Tokenised payment details from your payment provider SDK
+                set_as_default:
+                  type: boolean
+                  default: false
+      responses:
+        "201":
+          description: Payment method added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentMethod"
+        "422":
+          description: Invalid payment method token
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+components:
+  schemas:
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [pending, captured, refunded, failed]
+        amount:
+          type: integer
+        currency:
+          type: string
+        payment_method_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Refund:
+      type: object
+      properties:
+        id:
+          type: string
+        payment_id:
+          type: string
+        amount:
+          type: integer
+        status:
+          type: string
+          enum: [pending, succeeded, failed]
+        created_at:
+          type: string
+          format: date-time
+
+    PaymentMethod:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        last_four:
+          type: string
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    ProblemDetails:
+      type: object
+      description: RFC 9457 Problem Details for HTTP APIs
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri

@@ -34,4 +34,4 @@ When working with MCP tool definitions in this repo.
 
 The `description` comes directly from `x-capability.intent` — this is what the agent reads to decide whether to use this tool.
 
-See `openapi-to-mcp/mapping-guide.md` for the full guide and worked example.
+See `03-agent-bridge/mapping-guide.md` for the full guide and worked example.

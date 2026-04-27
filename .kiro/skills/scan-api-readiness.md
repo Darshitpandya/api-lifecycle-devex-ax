@@ -12,7 +12,7 @@ Run the automated scanner and explain what needs to be fixed.
 1. **Identify the spec** — ask the user which spec to scan if not specified
 2. **Run the scanner**:
    ```bash
-   cd readiness-scanner && npm install && node scan.js --spec ../path/to/spec.yaml
+   cd tools && npm install && node scan.js --spec ../path/to/spec.yaml
    ```
 3. **Parse the results** — identify all ❌ failures and ⚠️ warnings
 4. **Explain each failure** — for each failed check, explain:

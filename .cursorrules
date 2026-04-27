@@ -1,10 +1,10 @@
 You are working in the api-lifecycle-devex-ax repo — a production-ready playbook for APIs that deliver world-class DevEx and AX (Agent Experience).
 
 Key files:
-- x-capability-schema/capability-schema.json: JSON Schema for x-capability OpenAPI extension
-- api-transformation/after.yaml: Reference implementation — agent-ready API spec
-- governance-as-code/.spectral.yml: 5 linting rules for agent-readiness
-- openapi-to-mcp/mapping-guide.md: OpenAPI → MCP tool definitions
+- 01-spec-pattern/schema/capability-schema.json: JSON Schema for x-capability OpenAPI extension
+- 01-spec-pattern/after.yaml: Reference implementation — agent-ready API spec
+- 02-governance/.spectral.yml: 5 linting rules for agent-readiness
+- 03-agent-bridge/mapping-guide.md: OpenAPI → MCP tool definitions
 - metrics/devex-metrics.md: TTFHW, developer churn measurement
 - scorecard/lifecycle-scorecard.md: 30-question lifecycle self-assessment
 

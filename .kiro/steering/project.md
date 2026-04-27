@@ -17,11 +17,11 @@ Production-ready playbook for APIs that deliver world-class DevEx (Developer Exp
 
 | File | Purpose |
 |---|---|
-| `x-capability-schema/capability-schema.json` | JSON Schema for the `x-capability` extension |
-| `api-transformation/before.yaml` | Typical API spec — no intent metadata |
-| `api-transformation/after.yaml` | Same spec — agent-ready (reference implementation) |
-| `governance-as-code/.spectral.yml` | 5 lint rules enforcing agent-readiness |
-| `openapi-to-mcp/mapping-guide.md` | OpenAPI → MCP tool definitions |
+| `01-spec-pattern/schema/capability-schema.json` | JSON Schema for the `x-capability` extension |
+| `01-spec-pattern/before.yaml` | Typical API spec — no intent metadata |
+| `01-spec-pattern/after.yaml` | Same spec — agent-ready (reference implementation) |
+| `02-governance/.spectral.yml` | 5 lint rules enforcing agent-readiness |
+| `03-agent-bridge/mapping-guide.md` | OpenAPI → MCP tool definitions |
 | `metrics/devex-metrics.md` | TTFHW, developer churn measurement |
 | `scorecard/lifecycle-scorecard.md` | 30-question lifecycle self-assessment |
 

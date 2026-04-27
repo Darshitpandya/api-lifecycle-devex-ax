@@ -10,8 +10,8 @@ Annotate an OpenAPI spec with `x-capability` metadata so it works for humans, pi
 ## Steps
 
 1. **Read the spec** — load the target OpenAPI YAML file
-2. **Read the schema** — load `x-capability-schema/capability-schema.json` to understand required fields
-3. **Read the example** — load `api-transformation/after.yaml` to see the pattern in practice
+2. **Read the schema** — load `01-spec-pattern/schema/capability-schema.json` to understand required fields
+3. **Read the example** — load `01-spec-pattern/after.yaml` to see the pattern in practice
 4. **Annotate each operation** — add `x-capability` with:
    - `intent`: plain-language description of what this operation accomplishes (not how)
    - `domain`: business domain (e.g. commerce, identity, fulfillment)
@@ -22,7 +22,7 @@ Annotate an OpenAPI spec with `x-capability` metadata so it works for humans, pi
 5. **Fix error responses** — ensure all error responses use `application/problem+json` (RFC 9457)
 6. **Add ProblemDetails schema** — add to `components/schemas` if missing
 7. **Run the lint** — `cd governance && npm run lint:api -- --spec ../your-spec.yaml`
-8. **Run the scanner** — `cd readiness-scanner && node scan.js --spec ../your-spec.yaml`
+8. **Run the scanner** — `cd tools && node scan.js --spec ../your-spec.yaml`
 9. **Report** — show the scan results and any remaining gaps
 
 ## Safety rules
