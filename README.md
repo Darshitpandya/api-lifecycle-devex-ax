@@ -284,4 +284,4 @@ Senior Principal Engineer – Platform @ Serko · AWS Community Builder · Auckl
 Part of the **[platformpioneer.io](https://platformpioneer.io)** open-source playbook series.
 Contributions welcome — see [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md).
 
-*From the talk: **"The API Product Playbook: Managing the Full Lifecycle for a World-Class DevEx"** — NZ Tech Rally 2026*
+*From the talk: **"The API Product Playbook: Managing the Full Lifecycle for a World-Class DevEx and Agent Experience"** — NZ Tech Rally 2026*
