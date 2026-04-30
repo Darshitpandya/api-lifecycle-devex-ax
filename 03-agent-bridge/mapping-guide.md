@@ -130,5 +130,4 @@ This workflow is only possible because the spec declares intent, composability, 
 ## Tools for Generating MCP Servers from OpenAPI
 
 - [`@modelcontextprotocol/server-openapi`](https://www.npmjs.com/package/@modelcontextprotocol/server-openapi) — auto-generates MCP server from any OpenAPI spec
-- [Jentic API Scorecard](https://jentic.com/scorecard) — scores your API's agent-readiness
 - [Zuplo](https://zuplo.com) — API gateway with MCP server generation
