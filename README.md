@@ -135,14 +135,21 @@ See the full transformation: [`01-spec-pattern/before.yaml`](01-spec-pattern/bef
 Choose the approach that fits your situation — or use both.
 
 ### 🤖 Automated Assessment
-**For:** Any OpenAPI spec, any machine, any org. Instant. No human judgment needed.
+**For:** Checking whether a spec has been enriched with the `x-capability` intent metadata pattern. Works on any spec, any machine, any org.
+
+> **Important:** Any real-world public API will score low — because no production APIs use `x-capability` yet. That's the gap this playbook closes. Run it against a real spec to see the problem statement, then use `01-spec-pattern/after.yaml` to see what the solution looks like.
 
 ```bash
 cd tools && npm install
-node scan.js --spec ../your-spec.yaml
+
+# See the problem (any real API, or the included before.yaml)
+node scan.js --spec ../01-spec-pattern/before.yaml
+
+# See the solution (after applying the x-capability pattern)
+node scan.js --spec ../01-spec-pattern/after.yaml
 ```
 
-Runs 14 checks (10 spec + 4 repo structure). Outputs a Markdown or JSON report. Exit code 1 on hard failures — integrates with any CI gate. R3/R4 show as `ℹ️ Next step` (template-expected) not failures.
+Runs 14 checks (10 spec + 4 repo structure). Outputs a Markdown or JSON report. Exit code 1 on hard failures — integrates with any CI gate.
 Also available as a GitHub Actions workflow that posts the report as a PR comment: `.github/workflows/api-scan.yml`
 
 → **[`tools/`](tools/)** — full docs, CI setup, check list
