@@ -34,15 +34,15 @@ The same lifecycle discipline that makes APIs great for developers makes them gr
 
 *"How fast can a developer go from zero to a working integration?"*
 
-| What | Where |
-|---|---|
-| Before/after spec showing the transformation | `01-spec-pattern/before.yaml` → `after.yaml` |
-| Governance rules enforcing consistency in CI | `02-governance/.spectral.yml` |
-| Auto-fix: adds x-capability skeleton to any spec | `tools/scan.js --fix` |
-| TTFHW definition, measurement, targets | `04-measure/devex-metrics.md` |
-| Developer churn SQL (AWS, Kong, Nginx) | `04-measure/developer-churn-queries.md` |
-| Deprecation runway — no surprise sunsets | `02-governance/deprecation-runway.md` |
-| AI coding tool support (Kiro, Claude Code, Cursor, Copilot) | `CLAUDE.md`, `.cursorrules`, `.kiro/` |
+| What | How | Where |
+|---|---|---|
+| See the transformation | Open both files side by side — the diff is the concept | `01-spec-pattern/before.yaml` → `after.yaml` |
+| Enforce consistency in CI | Copy `.spectral.yml` to your repo, add `npm run lint:api` to your pipeline | `02-governance/.spectral.yml` |
+| Auto-fix any spec | `node scan.js --spec your-spec.yaml --fix` → fills skeleton, you fill intent | `tools/scan.js --fix` |
+| Measure TTFHW | Instrument your portal: `first_successful_call - first_portal_visit` | `04-measure/devex-metrics.md` |
+| Track developer churn | Run the SQL against your gateway logs (AWS, Kong, or Nginx) | `04-measure/developer-churn-queries.md` |
+| Plan deprecations | Fill in the template when you start a deprecation runway | `02-governance/deprecation-runway.md` |
+| Use with AI coding tools | Open your spec in Kiro/Cursor/Claude Code, say "make this agent-ready" | `CLAUDE.md`, `.cursorrules`, `.kiro/` |
 
 **World-class DevEx standard:** TTFHW < 15 minutes.
 
@@ -52,13 +52,13 @@ The same lifecycle discipline that makes APIs great for developers makes them gr
 
 *"Can automated systems depend on this API without breaking?"*
 
-| What | Where |
-|---|---|
-| Spectral lint in CI — enforces consistency on every PR | `02-governance/.spectral.yml` + `api-lint.yml` |
-| GitHub Actions workflow — runs on every PR, zero config | `.github/workflows/api-lint.yml` |
-| Automated readiness scan as PR comment | `.github/workflows/api-scan.yml` |
-| Breaking change escape rate measurement | `04-measure/api-product-metrics.md` |
-| Contract pass rate tracking | `04-measure/measuring-devex-ax.md` |
+| What | How | Where |
+|---|---|---|
+| Lint every PR | Copy `api-lint.yml` to your `.github/workflows/` — zero config | `.github/workflows/api-lint.yml` |
+| Scan every PR + post report as comment | Copy `api-scan.yml` to your `.github/workflows/` | `.github/workflows/api-scan.yml` |
+| Enforce locally (Mac/Linux) | `cd 02-governance && make lint-api SPEC=your-spec.yaml` | `02-governance/Makefile` |
+| Enforce locally (all platforms) | `cd 02-governance && npm run lint:api -- --spec your-spec.yaml` | `02-governance/package.json` |
+| Track breaking change escape rate | Query CI results: `breaking_changes_in_prod / total_breaking_changes` | `04-measure/api-product-metrics.md` |
 
 **World-class Reliability standard:** > 95% of breaking changes caught in CI before production.
 
@@ -68,16 +68,16 @@ The same lifecycle discipline that makes APIs great for developers makes them gr
 
 *"Can an AI agent discover, select, and invoke the right tool without human help?"*
 
-| What | Where |
-|---|---|
-| x-capability schema — intent, safety, composability | `01-spec-pattern/schema/capability-schema.json` |
-| Intent-enriched spec examples (commerce, identity, payments) | `01-spec-pattern/after.yaml`, `identity-api.yaml`, `payments-api.yaml` |
-| MCP config generator — converts any enriched spec to agent tools | `03-agent-bridge/generate-mcp.js` |
-| OpenAPI → MCP mapping guide | `03-agent-bridge/mapping-guide.md` |
-| Kiro skills: make-agent-ready, scan, generate-mcp | `.kiro/skills/` |
-| Claude Code slash commands: /make-api-agent-ready, /scan-api | `.claude/commands/` |
-| Intent resolution rate + first-invocation success measurement | `04-measure/measuring-devex-ax.md` |
-| Capability Redirect for agent self-healing on deprecation | `02-governance/deprecation-runway.md` |
+| What | How | Where |
+|---|---|---|
+| Understand the x-capability schema | Read the JSON Schema — required fields are `intent`, `domain`, `safety` | `01-spec-pattern/schema/capability-schema.json` |
+| See it applied to real APIs | Open any of the three domain examples and read the x-capability blocks | `01-spec-pattern/after.yaml`, `identity-api.yaml`, `payments-api.yaml` |
+| Generate MCP config from your spec | `cd 03-agent-bridge && npm install && node generate-mcp.js --spec your-spec.yaml --base-url https://your-api.com` | `03-agent-bridge/generate-mcp.js` |
+| Register with Claude Desktop | Copy generated `mcp-server.json` to `~/.config/claude/claude_desktop_config.json` | `03-agent-bridge/mapping-guide.md` |
+| Register with Kiro | Copy generated config to `.kiro/settings/mcp.json` in your project | `03-agent-bridge/mapping-guide.md` |
+| Use Kiro skills | Open spec in Kiro, say "make my API agent-ready" — skill runs automatically | `.kiro/skills/make-api-agent-ready.md` |
+| Use Claude Code commands | Type `/make-api-agent-ready` in Claude Code | `.claude/commands/` |
+| Measure AX | Add `consumer_type=agent` label to gateway metrics, track intent resolution rate | `04-measure/measuring-devex-ax.md` |
 
 **World-class AX standard:** Intent resolution rate > 90%, first-invocation success > 80%.
 
