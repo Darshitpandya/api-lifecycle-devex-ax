@@ -28,6 +28,61 @@ The same lifecycle discipline that makes APIs great for developers makes them gr
 
 ---
 
+## What This Repo Covers for Each Consumer
+
+### 👩‍💻 DevEx — Developer Experience
+
+*"How fast can a developer go from zero to a working integration?"*
+
+| What | Where |
+|---|---|
+| Before/after spec showing the transformation | `01-spec-pattern/before.yaml` → `after.yaml` |
+| Governance rules enforcing consistency in CI | `02-governance/.spectral.yml` |
+| Auto-fix: adds x-capability skeleton to any spec | `tools/scan.js --fix` |
+| TTFHW definition, measurement, targets | `04-measure/devex-metrics.md` |
+| Developer churn SQL (AWS, Kong, Nginx) | `04-measure/developer-churn-queries.md` |
+| Deprecation runway — no surprise sunsets | `02-governance/deprecation-runway.md` |
+| AI coding tool support (Kiro, Claude Code, Cursor, Copilot) | `CLAUDE.md`, `.cursorrules`, `.kiro/` |
+
+**World-class DevEx standard:** TTFHW < 15 minutes.
+
+---
+
+### 🔧 Reliability — Pipeline Consumer Experience
+
+*"Can automated systems depend on this API without breaking?"*
+
+| What | Where |
+|---|---|
+| Spectral lint in CI — enforces consistency on every PR | `02-governance/.spectral.yml` + `api-lint.yml` |
+| GitHub Actions workflow — runs on every PR, zero config | `.github/workflows/api-lint.yml` |
+| Automated readiness scan as PR comment | `.github/workflows/api-scan.yml` |
+| Breaking change escape rate measurement | `04-measure/api-product-metrics.md` |
+| Contract pass rate tracking | `04-measure/measuring-devex-ax.md` |
+
+**World-class Reliability standard:** > 95% of breaking changes caught in CI before production.
+
+---
+
+### 🤖 AX — Agent Experience
+
+*"Can an AI agent discover, select, and invoke the right tool without human help?"*
+
+| What | Where |
+|---|---|
+| x-capability schema — intent, safety, composability | `01-spec-pattern/schema/capability-schema.json` |
+| Intent-enriched spec examples (commerce, identity, payments) | `01-spec-pattern/after.yaml`, `identity-api.yaml`, `payments-api.yaml` |
+| MCP config generator — converts any enriched spec to agent tools | `03-agent-bridge/generate-mcp.js` |
+| OpenAPI → MCP mapping guide | `03-agent-bridge/mapping-guide.md` |
+| Kiro skills: make-agent-ready, scan, generate-mcp | `.kiro/skills/` |
+| Claude Code slash commands: /make-api-agent-ready, /scan-api | `.claude/commands/` |
+| Intent resolution rate + first-invocation success measurement | `04-measure/measuring-devex-ax.md` |
+| Capability Redirect for agent self-healing on deprecation | `02-governance/deprecation-runway.md` |
+
+**World-class AX standard:** Intent resolution rate > 90%, first-invocation success > 80%.
+
+---
+
 ## The Blueprint
 
 ```
