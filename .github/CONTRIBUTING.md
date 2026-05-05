@@ -9,17 +9,18 @@ It's open source because the best playbooks are built by practitioners, not vend
 ## What belongs here
 
 - Improvements to existing patterns (spec, governance, MCP mapping, metrics, scorecard)
-- Additional domain examples in `01-spec-pattern/` (healthcare, fulfillment, notifications, etc.)
-- Bug fixes in the Spectral rules or scanner
+- Additional domain examples in `01-spec-pattern/` (healthcare, fulfillment, notifications, payments, etc.)
+- Bug fixes in the Spectral rules, scanner, or MCP generator
 - Corrections to metrics formulas or scorecard questions
 - Real-world before/after transformations from your own API programs
+- Improvements to the `--fix` flag (new x-capability fields, better defaults)
+- Improvements to `generate-mcp.js` (new MCP host formats, better inputSchema extraction)
 
 ## What doesn't belong here
 
-- CLI tools or npm packages (out of scope for this playbook)
 - Framework-specific integrations
 - Vendor-specific tooling
-- Anything that requires a runtime to use
+- Anything that requires a cloud account or paid service to use
 
 ## How to contribute
 
@@ -31,12 +32,18 @@ It's open source because the best playbooks are built by practitioners, not vend
    cd 02-governance && npm install
    npm run lint:api -- --spec ../01-spec-pattern/your-spec.yaml
    ```
-5. Run the scanner:
+5. Run the scanner (and test --fix if relevant):
    ```bash
    cd tools && npm install
    node scan.js --spec ../01-spec-pattern/your-spec.yaml
+   node scan.js --spec ../01-spec-pattern/before.yaml --fix  # test fix mode
    ```
-6. Open a pull request with a clear description of what changed and why
+6. Test the MCP generator if you changed specs or generate-mcp.js:
+   ```bash
+   cd 03-agent-bridge && npm install
+   node generate-mcp.js --spec ../01-spec-pattern/after.yaml
+   ```
+7. Open a pull request with a clear description of what changed and why
 
 ## Principles
 
