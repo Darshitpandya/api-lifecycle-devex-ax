@@ -131,3 +131,25 @@ This workflow is only possible because the spec declares intent, composability, 
 
 - [`@modelcontextprotocol/server-openapi`](https://www.npmjs.com/package/@modelcontextprotocol/server-openapi) — auto-generates MCP server from any OpenAPI spec
 - [Zuplo](https://zuplo.com) — API gateway with MCP server generation
+
+## generate-mcp.js — Included in this repo
+
+Generate an MCP server config directly from your enriched spec:
+
+```bash
+cd 03-agent-bridge && npm install
+node generate-mcp.js --spec ../01-spec-pattern/after.yaml
+# → writes mcp-server.json with all tools extracted
+
+# With your real API URL
+node generate-mcp.js --spec your-enriched-spec.yaml --base-url https://api.yourcompany.com/v1
+
+# Custom server name
+node generate-mcp.js --spec your-enriched-spec.yaml --name my-commerce-api
+```
+
+The generator extracts every operation with an `operationId` and maps:
+- `operationId` → MCP tool `name`
+- `x-capability.intent` → MCP tool `description`
+- Request body + path params → `inputSchema`
+- `x-capability.safety` → metadata for agent decision-making

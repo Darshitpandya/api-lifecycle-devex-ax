@@ -24,6 +24,14 @@ npm install
 # Scan a spec — shows what's missing
 node scan.js --spec ../your-spec.yaml
 
+# FIX MODE — adds x-capability skeleton to every failing operation
+node scan.js --spec ../your-spec.yaml --fix
+# → writes your-spec-enriched.yaml with TODO placeholders
+# → you fill in the intent fields, then re-scan
+
+# Fix with custom output path
+node scan.js --spec ../your-spec.yaml --fix --output ../your-spec-enriched.yaml
+
 # See the before/after contrast with the included examples
 node scan.js --spec ../01-spec-pattern/before.yaml   # 🔴 missing intent metadata
 node scan.js --spec ../01-spec-pattern/after.yaml    # 🟡 intent metadata present
@@ -33,6 +41,28 @@ node scan.js --spec ../your-spec.yaml --output report.md
 
 # JSON output (for CI pipelines, dashboards, custom tooling)
 node scan.js --spec ../your-spec.yaml --format json
+```
+
+## Fix mode workflow
+
+The fastest path from any spec to agent-ready:
+
+```bash
+# Step 1: scan to see what's missing
+node scan.js --spec your-spec.yaml
+
+# Step 2: auto-fix — adds x-capability skeleton to every operation
+node scan.js --spec your-spec.yaml --fix
+# → writes your-spec-enriched.yaml
+
+# Step 3: open your-spec-enriched.yaml and fill in every TODO
+# (intent field is the most important — plain language description)
+
+# Step 4: re-scan to verify
+node scan.js --spec your-spec-enriched.yaml
+
+# Step 5: generate MCP config
+node ../03-agent-bridge/generate-mcp.js --spec your-spec-enriched.yaml --base-url https://your-api.com/v1
 ```
 
 ## In CI (GitHub Actions)

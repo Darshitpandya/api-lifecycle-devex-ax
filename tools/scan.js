@@ -3,12 +3,14 @@
  * ax-scan — API Agent-Readiness Scanner
  *
  * Scans an OpenAPI spec and generates a DevEx + AX readiness report.
+ * With --fix, writes x-capability skeleton to every failing operation.
  *
  * Usage:
  *   node scan.js --spec path/to/spec.yaml
  *   node scan.js --spec path/to/spec.yaml --output report.md
  *   node scan.js --spec path/to/spec.yaml --format json
- *   npx ax-scan --spec path/to/spec.yaml
+ *   node scan.js --spec path/to/spec.yaml --fix
+ *   node scan.js --spec path/to/spec.yaml --fix --output enriched-spec.yaml
  */
 
 const fs = require("fs");
@@ -22,13 +24,15 @@ const get = (flag) => {
   const i = args.indexOf(flag);
   return i !== -1 ? args[i + 1] : null;
 };
+const has = (flag) => args.includes(flag);
 
 const specPath = get("--spec");
 const outputPath = get("--output");
 const format = get("--format") || "markdown";
+const fixMode = has("--fix");
 
 if (!specPath) {
-  console.error("Usage: node scan.js --spec <path-to-openapi-spec.yaml> [--output report.md] [--format markdown|json]");
+  console.error("Usage: node scan.js --spec <path-to-openapi-spec.yaml> [--output file] [--format markdown|json] [--fix]");
   process.exit(1);
 }
 
@@ -304,6 +308,49 @@ check("R4", "[Repo] Deprecation runway template has dates filled in — Sunset s
     fix: "Fill in the announce and sunset dates in 02-governance/deprecation-runway.md when you start a deprecation",
   };
 });
+
+// ─── Fix mode ────────────────────────────────────────────────────────────────
+
+if (fixMode) {
+  const MUTATING = ["post", "put", "patch", "delete"];
+  const HTTP_METHODS_FIX = ["get", "post", "put", "patch", "delete"];
+  let fixCount = 0;
+
+  for (const [pathKey, pathItem] of Object.entries(spec.paths || {})) {
+    for (const method of HTTP_METHODS_FIX) {
+      if (!pathItem[method]) continue;
+      const op = pathItem[method];
+      if (op["x-capability"]) continue; // already has it
+
+      const isMutating = MUTATING.includes(method);
+      const isDestructive = method === "delete";
+
+      op["x-capability"] = {
+        intent: `TODO: describe what this operation accomplishes in plain language`,
+        domain: "TODO: e.g. commerce, identity, fulfillment",
+        safety: isDestructive ? "destructive" : isMutating ? "mutating" : "safe",
+        ...(isMutating ? { "side-effects": ["TODO: list side effects, e.g. email-sent, record-created"] } : {}),
+        "composable-with": ["TODO: list operationIds this chains with, or remove"],
+        idempotency: method === "get" || method === "put" ? "natural" : isMutating ? "supported" : "natural",
+      };
+      fixCount++;
+    }
+  }
+
+  const fixedYaml = yaml.dump(spec, { lineWidth: 120, noRefs: true });
+  const fixOutputPath = outputPath || specPath.replace(/\.ya?ml$/, "-enriched.yaml");
+  fs.writeFileSync(fixOutputPath, fixedYaml);
+
+  console.log(`✅ Fixed ${fixCount} operation(s) — x-capability skeleton added`);
+  console.log(`📄 Written to: ${fixOutputPath}`);
+  console.log(``);
+  console.log(`Next steps:`);
+  console.log(`  1. Open ${fixOutputPath}`);
+  console.log(`  2. Replace every TODO with real values`);
+  console.log(`  3. Re-run: node scan.js --spec ${fixOutputPath}`);
+  console.log(`  4. Generate MCP config: node ../03-agent-bridge/generate-mcp.js --spec ${fixOutputPath}`);
+  process.exit(0);
+}
 
 // ─── Score ───────────────────────────────────────────────────────────────────
 
