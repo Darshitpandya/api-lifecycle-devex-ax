@@ -384,8 +384,8 @@ if (failures.length > 0) {
   });
   p();
   if (failures.some(c => ["A1","A2","A3"].includes(c.id))) {
-    p(`  ${col(c.cyan, "💡")}  Run with --fix to auto-generate x-capability skeleton:`);
-    p(col(c.gray, `     node scan.js --spec ${specPath} --fix`));
+    p(`  ${col(c.cyan + c.bold, "💡  Run with --fix to auto-generate x-capability skeleton:")}`);
+    p(`     ${col(c.white + c.bold, `node scan.js --spec ${specPath} --fix`)}`);
     p();
   }
 }
