@@ -321,16 +321,25 @@ if (format === "json") {
   process.exit(Object.values(results).flat().some(c => !c.pass && !c.info) ? 1 : 0);
 }
 
+// Strip ANSI to measure visible length
+const stripAnsi = (s) => s.replace(/\x1b\[[0-9;]*m/g, "");
+const visLen = (s) => stripAnsi(s).length;
+// Pad a string (which may contain ANSI) to visible width W
+const vPad = (s, w) => s + " ".repeat(Math.max(0, w - visLen(s)));
+
 const lines = [];
 const p = (line = "") => lines.push(line);
 
+const BOX_L = col(c.bold, "║");
+const BOX_R = col(c.bold, "║");
+
 p(col(c.bold, `╔${border}╗`));
-p(col(c.bold, `║`) + col(c.bold + c.white, `  AX Readiness Report · ${specName}`.padEnd(W)) + col(c.bold, `║`));
+p(BOX_L + vPad(col(c.bold + c.white, `  AX Readiness Report · ${specName}`), W) + BOX_R);
 p(col(c.bold, `╠${border}╣`));
-p(col(c.bold, `║`) + `  Overall Score: ${col(c.bold, `${total}/100`)}   ${totalBand(total)}`.padEnd(W + 20) + col(c.bold, `║`));
+p(BOX_L + vPad(`  Overall Score: ${col(c.bold, `${total}/100`)}   ${totalBand(total)}`, W) + BOX_R);
 p(col(c.bold, `╠${border}╣`));
-p(col(c.bold, `║`) + col(c.gray, `  Dimension       Score   Progress`.padEnd(W)) + col(c.bold, `║`));
-p(col(c.bold, `║`) + col(c.gray, `  ─────────────────────────────────────────────────────────────`.slice(0,W)) + col(c.bold, `║`));
+p(BOX_L + vPad(col(c.gray, `  Dimension       Score   Progress`), W) + BOX_R);
+p(BOX_L + vPad(col(c.gray, `  ${"─".repeat(W - 2)}`), W) + BOX_R);
 
 const dims = [
   { key: "devex",       label: "DevEx      ", max: 25 },
@@ -343,8 +352,8 @@ for (const d of dims) {
   const s = scores[d.key];
   const scoreStr = `${s}/${d.max}`.padStart(5);
   const b = bar(s, d.max, 22);
-  const line = `  ${d.label}  ${scoreStr}   ${b}`;
-  p(col(c.bold, `║`) + line.padEnd(W + 30) + col(c.bold, `║`));
+  const content = `  ${d.label}  ${scoreStr}   ${b}`;
+  p(BOX_L + vPad(content, W) + BOX_R);
 }
 
 p(col(c.bold, `╚${border}╝`));
