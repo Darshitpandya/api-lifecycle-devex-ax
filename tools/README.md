@@ -1,6 +1,6 @@
 # Automated Assessment
 
-CLI scanner that checks whether an OpenAPI spec has been enriched with the intent metadata pattern this playbook introduces (`x-capability`). It measures **readiness for the pattern** — not general API quality.
+CLI scanner that scores an OpenAPI spec across 4 dimensions: DevEx, AX, Governance, and Reliability (25 pts each = 100 total). Checks whether an OpenAPI spec has been enriched with the intent metadata pattern this playbook introduces (`x-capability`). It measures **readiness for the pattern** — not general API quality.
 
 ## What this scanner is — and isn't
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * ax-scan — API Agent-Readiness Scanner
+ * api-lifecycle-scan — API Lifecycle Readiness Scanner
  *
  * Scores any OpenAPI spec across 4 dimensions (25 pts each = 100 total).
  * With --fix, writes x-capability skeleton to every failing operation.
@@ -334,7 +334,7 @@ const BOX_L = col(c.bold, "║");
 const BOX_R = col(c.bold, "║");
 
 p(col(c.bold, `╔${border}╗`));
-p(BOX_L + vPad(col(c.bold + c.white, `  AX Readiness Report · ${specName}`), W) + BOX_R);
+p(BOX_L + vPad(col(c.bold + c.white, `  API Lifecycle Readiness Report · ${specName}`), W) + BOX_R);
 p(col(c.bold, `╠${border}╣`));
 p(BOX_L + vPad(`  Overall Score: ${col(c.bold, `${total}/100`)}   ${totalBand(total)}`, W) + BOX_R);
 p(col(c.bold, `╠${border}╣`));
