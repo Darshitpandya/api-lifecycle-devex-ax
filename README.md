@@ -216,7 +216,8 @@ MIT — fork it, adapt it, ship it.
 **Authored by [Darshit Pandya](https://platformpioneer.io)**
 Senior Principal Engineer – Platform @ Serko · AWS Community Builder · Auckland, New Zealand
 
-> *"Great platforms don't start with endpoints. They start with intent."*
+> *"Great API platforms don't start with endpoints. They start with intent."*
+> *"The lifecycle is the product. The intent is the interface."*
 
 Part of the **[platformpioneer.io](https://platformpioneer.io)** open-source playbook series.
 
