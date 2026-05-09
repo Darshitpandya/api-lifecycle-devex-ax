@@ -1,14 +1,74 @@
 # api-lifecycle-devex-ax
 
-> The production-ready playbook for APIs that deliver world-class **DevEx** and **AX (Agent Experience)** — for humans, pipelines, and AI agents.
+> **Your API works. But can a developer onboard in 15 minutes? Can an AI agent use it without reading your docs?**
+>
+> Most APIs answer one of those questions. This playbook answers both.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![platformpioneer.io](https://img.shields.io/badge/by-platformpioneer.io-0066cc)](https://platformpioneer.io)
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-green)](01-spec-pattern/schema/capability-schema.json)
 [![Spectral](https://img.shields.io/badge/Linting-Spectral-blue)](02-governance/.spectral.yml)
-[![platformpioneer.io](https://img.shields.io/badge/by-platformpioneer.io-0066cc)](https://platformpioneer.io)
 
-> Authored by **[Darshit Pandya](https://platformpioneer.io)** · Senior Principal Engineer – Platform @ Serko · AWS Community Builder
-> Open source — fork it, adapt it, contribute back.
+---
+
+## See the gap in 30 seconds
+
+```bash
+cd tools && npm install
+node scan.js --spec your-spec.yaml
+```
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║  API Lifecycle Readiness Report · your-spec.yaml             ║
+╠══════════════════════════════════════════════════════════════╣
+║  Overall Score: 20/100   ● Needs work                        ║
+╠══════════════════════════════════════════════════════════════╣
+║  DevEx        10/25   █████░░░░░░░░░░░░░░░░░                 ║
+║  AX            0/25   ░░░░░░░░░░░░░░░░░░░░░░                 ║
+║  Governance   10/25   █████░░░░░░░░░░░░░░░░░                 ║
+║  Reliability   0/25   ░░░░░░░░░░░░░░░░░░░░░░                 ║
+╚══════════════════════════════════════════════════════════════╝
+
+  ❌  A1  x-capability missing on all operations
+  ❌  A2  intent not declared — agents can't discover purpose
+  ❌  A3  safety classification missing — agents can't decide safely
+  💡  Run: node scan.js --spec your-spec.yaml --fix
+```
+
+**That's any real API today.** Including yours. Including Stripe's.
+
+Now fix it:
+
+```bash
+node scan.js --spec your-spec.yaml --fix
+# → writes your-spec-enriched.yaml with x-capability skeleton
+# → fill in the intent fields (5 min)
+# → re-scan: 80/100
+```
+
+---
+
+## What just happened
+
+Your API now has **intent metadata** — the thing that makes it work for humans *and* AI agents simultaneously.
+
+```yaml
+# Before — describes operations
+POST /orders
+
+# After — describes intent
+POST /orders:
+  x-capability:
+    intent: "Create a commerce order with payment capture"
+    safety: mutating
+    side-effects: [payment-capture, inventory-reserve]
+    composable-with: [checkInventory, dispatchFulfillment]
+```
+
+A human reads `intent` and understands the API.
+An AI agent reads `intent` to decide whether this tool solves its current task.
+**One spec. Two audiences. 15 lines of YAML.**
 
 ---
 
@@ -48,79 +108,102 @@
 
 ---
 
-## Quickstart
+## What's in the box
 
-**Path 1 — Scan your API spec (2 min)**
+### 🔬 Scanner — scores your API /100 across 4 dimensions
+
 ```bash
-cd tools && npm install
-node scan.js --spec your-spec.yaml
+cd tools && node scan.js --spec your-spec.yaml
 ```
 
-**Path 2 — Auto-fix missing intent metadata (5 min)**
+| Dimension | What it measures | Max |
+|---|---|---|
+| **DevEx** | operationId, descriptions, servers, contact, RFC 9457 errors | 25 |
+| **AX** | x-capability, intent, safety, side-effects, idempotency | 25 |
+| **Governance** | Spectral ruleset, GitHub Actions, deprecation runway | 25 |
+| **Reliability** | ProblemDetails schema, composability, MCP config | 25 |
+
+`--fix` mode rewrites your spec with x-capability skeleton automatically.
+
+---
+
+### 📐 Spec Pattern — the before/after that explains everything
+
+[`01-spec-pattern/before.yaml`](01-spec-pattern/before.yaml) — what every API looks like today.
+[`01-spec-pattern/after.yaml`](01-spec-pattern/after.yaml) — the same API, agent-ready.
+
+Three real domain examples: commerce, identity, payments.
+
+---
+
+### ⚙️ Governance-as-Code — drop into CI today
+
 ```bash
-node scan.js --spec your-spec.yaml --fix
-# → writes your-spec-enriched.yaml with TODO placeholders
-# → fill in the intent fields, re-scan
+# npm (Mac / Windows / Linux)
+cd 02-governance && npm install
+npm run lint:api -- --spec your-spec.yaml
+
+# GitHub Actions — copy to your repo, zero config
+cp .github/workflows/api-lint.yml your-repo/.github/workflows/
 ```
 
-**Path 3 — Generate MCP config for agents (10 min)**
+5 Spectral rules. Blocks merge if intent metadata is missing.
+
+---
+
+### 🤖 Agent Bridge — connect your API to any AI agent
+
 ```bash
 cd 03-agent-bridge && npm install
 node generate-mcp.js --spec your-spec-enriched.yaml --base-url https://your-api.com/v1
-# → writes mcp-server.json
-# → copy to Claude Desktop or Kiro config
 ```
 
+Generates a valid MCP server config. Register with Claude Desktop or Kiro. Your API is now discoverable by agents.
+
 ---
 
-## What's Inside
+### 📊 Lifecycle Scorecard — rate your entire API program
 
-Follow the numbered folders in order:
+[`04-measure/lifecycle-scorecard.md`](04-measure/lifecycle-scorecard.md) — 30 questions across all 6 lifecycle stages. Score 1–5. Find the weakest stage. Start there.
 
-| Folder | What it does |
+| Stage | Questions |
 |---|---|
-| [`01-spec-pattern/`](01-spec-pattern/) | Before/after specs + x-capability schema. Commerce, identity, payments examples. |
-| [`02-governance/`](02-governance/) | Spectral lint rules + CI scripts (npm/make/GitHub Actions) + deprecation runway. |
-| [`03-agent-bridge/`](03-agent-bridge/) | MCP config generator + OpenAPI → MCP mapping guide. |
-| [`04-measure/`](04-measure/) | DevEx + AX + pipeline metrics. Scorecard, checklist, churn SQL (AWS/Kong/Nginx). |
-| [`tools/`](tools/) | Scanner: 14 checks, `--fix` mode, Markdown/JSON report, GitHub Actions CI. |
+| Design | Spec-first? Intent metadata? Design review? |
+| Build | Auth at gateway? Multi-consumer auth models? |
+| Discover | TTFHW measured? MCP-mappable? |
+| Operate | SLOs per consumer type? Developer churn tracked? |
+| Evolve | Intent contracts in CI? Consumer registry? |
+| Sunset | Deprecation runway? Zombie API detection? |
+
+Also includes: developer churn SQL for AWS API Gateway, Kong, and Nginx.
 
 ---
 
-## What It Covers
-
-| Consumer | Experience | Key metric | What the repo gives you |
-|---|---|---|---|
-| 👩‍💻 Human | **DevEx** | TTFHW < 15 min | Spec pattern, governance rules, `--fix`, churn SQL, AI tool support |
-| 🔧 Pipeline | **Reliability** | Contract pass % | CI lint workflow, PR scan, breaking change tracking |
-| 🤖 Agent | **AX** | Intent resolution > 90% | x-capability schema, MCP generator, Kiro skills, Claude commands |
-
-Full detail: [`04-measure/measuring-devex-ax.md`](04-measure/measuring-devex-ax.md)
-
----
-
-## Works With AI Coding Tools
+### 🧠 Works with your AI coding tool
 
 Open this repo in your AI coding tool and say **"make my API agent-ready"** — it works automatically.
 
-| Tool | Context file | Skills / Commands |
-|---|---|---|
-| **Any AI tool** | `AGENTS.md` | Universal context |
-| **Kiro** | `.kiro/steering/` | `make-api-agent-ready` · `scan-api-readiness` · `generate-mcp-config` |
-| **Claude Code** | `CLAUDE.md` | `/make-api-agent-ready` · `/scan-api` · `/generate-mcp` |
-| **Cursor** | `.cursorrules` | Context loaded automatically |
-| **GitHub Copilot** | `.github/copilot-instructions.md` | Context loaded automatically |
+| Tool | What happens |
+|---|---|
+| **Kiro** | Loads 3 steering files + 3 skills: annotate spec, scan, generate MCP config |
+| **Claude Code** | `/make-api-agent-ready` · `/scan-api` · `/generate-mcp` slash commands |
+| **Cursor** | `.cursorrules` loaded — understands x-capability pattern |
+| **GitHub Copilot** | `.github/copilot-instructions.md` loaded |
+| **Any AI agent** | `AGENTS.md` — universal context |
 
 ---
 
-## Two Ways to Assess
+## The 30-minute path from any API to agent-ready
 
-| | Automated | Human |
-|---|---|---|
-| **Tool** | `tools/scan.js` | `04-measure/lifecycle-scorecard.md` |
-| **What** | 14 spec + repo checks | 30-question lifecycle self-assessment |
-| **Time** | Instant | Half a day |
-| **Covers** | x-capability, RFC 9457, governance, CI | TTFHW, ownership, org maturity, business value |
+```
+1. Fork this repo
+2. node scan.js --spec your-spec.yaml          → see the score
+3. node scan.js --spec your-spec.yaml --fix    → skeleton generated
+4. Fill in intent fields                        → 5 min
+5. node scan.js --spec your-spec-enriched.yaml → verify score
+6. node generate-mcp.js --spec ...             → MCP config ready
+7. Register with Claude Desktop or Kiro        → agents can use your API
+```
 
 ---
 
@@ -136,6 +219,5 @@ Senior Principal Engineer – Platform @ Serko · AWS Community Builder · Auckl
 > *"Great platforms don't start with endpoints. They start with intent."*
 
 Part of the **[platformpioneer.io](https://platformpioneer.io)** open-source playbook series.
-Contributions welcome — see [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md).
 
 *From the talk: **"The API Product Playbook: Managing the Full Lifecycle for a World-Class DevEx and Agent Experience"** — NZ Tech Rally 2026*
