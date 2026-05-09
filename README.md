@@ -76,31 +76,31 @@ An AI agent reads `intent` to decide whether this tool solves its current task.
 
 ```
 ╔════════════════════════════════════════════════════════════════════════════════╗
-║      THE API PRODUCT LIFECYCLE — REDESIGNED FOR THE AGENTIC ERA               ║
+║      THE API PRODUCT LIFECYCLE — REDESIGNED FOR THE AGENTIC ERA                ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
 ║                                                                                ║
 ║  LIFECYCLE STAGES                                                              ║
-║  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        ║
-║  │  DESIGN  │→ │  BUILD   │→ │ DISCOVER │→ │ OPERATE  │→ │  EVOLVE  │→ SUNSET ║
-║  │Contract  │  │Gateway   │  │Portal    │  │SLOs per  │  │Schema +  │ Runway  ║
-║  │+ Intent  │  │+3 Trust  │  │+ MCP     │  │consumer  │  │Intent +  │ + Cap.  ║
-║  │First     │  │Models    │  │+ Catalog │  │type      │  │Arazzo    │ Redir.  ║
-║  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘        ║
+║  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐          ║
+║  │  DESIGN  │→ │  BUILD   │→ │ DISCOVER │→ │ OPERATE  │→ │  EVOLVE  │→ SUNSET  ║
+║  │Contract  │  │Gateway   │  │Portal    │  │SLOs per  │  │Schema +  │ Runway   ║
+║  │+ Intent  │  │+3 Trust  │  │+ MCP     │  │consumer  │  │Intent +  │ + Cap.   ║
+║  │First     │  │Models    │  │+ Catalog │  │type      │  │Arazzo    │ Redir.   ║
+║  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘          ║
 ║                                                                                ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
 ║  CONSUMER PLANE                                                                ║
 ║  Consumer    │ Discovery            │ Auth                │ Key Metric         ║
 ║  ────────────┼──────────────────────┼─────────────────────┼──────────────────  ║
-║  Human       │ Portal + Docs        │ OAuth 2.0 + PKCE    │ TTFHW < 15 min    ║
+║  Human       │ Portal + Docs        │ OAuth 2.0 + PKCE    │ TTFHW < 15 min     ║
 ║  Pipeline    │ SDK + CLI            │ Scoped API Keys     │ Contract pass %    ║
 ║  Agent       │ MCP + Cap. Registry  │ Short-lived scoped  │ Intent resolution  ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
 ║  PLATFORM ENGINEERING PLANE                                                    ║
-║  API Gateway · Policy Engine (OPA/Cedar) · Capability Registry                ║
-║  OpenTelemetry · Spectral Governance-as-Code · Arazzo Workflows               ║
+║  API Gateway · Policy Engine (OPA/Cedar) · Capability Registry                 ║
+║  OpenTelemetry · Spectral Governance-as-Code · Arazzo Workflows                ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
 ║  PRODUCT DISCIPLINE PLANE                                                      ║
-║  API Product Owner · Lifecycle Roadmap · DevEx + AX Metrics · Sunset Plan     ║
+║  API Product Owner · Lifecycle Roadmap · DevEx + AX Metrics · Sunset Plan      ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
 ║  THROUGHLINE: "What can I accomplish?" — not just "What can I call?"           ║
 ╚════════════════════════════════════════════════════════════════════════════════╝
