@@ -72,14 +72,17 @@ for (const [pathKey, pathItem] of Object.entries(spec.paths || {})) {
       inputSchema = body;
     }
 
-    // Add path parameters
-    const pathParams = (pathItem.parameters || []).concat(op.parameters || [])
-      .filter(p => p.in === "path");
-    if (pathParams.length > 0) {
+    // Add path and query parameters
+    const allParams = (pathItem.parameters || []).concat(op.parameters || [])
+      .filter(p => p.in === "path" || p.in === "query");
+    if (allParams.length > 0) {
       inputSchema.properties = inputSchema.properties || {};
       inputSchema.required = inputSchema.required || [];
-      for (const param of pathParams) {
-        inputSchema.properties[param.name] = param.schema || { type: "string" };
+      for (const param of allParams) {
+        inputSchema.properties[param.name] = {
+          ...(param.schema || { type: "string" }),
+          ...(param.description ? { description: param.description } : {}),
+        };
         if (param.required) inputSchema.required.push(param.name);
       }
     }

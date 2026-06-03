@@ -1,0 +1,102 @@
+openapi: "3.1.0"
+info:
+  title: Enriched API
+  version: "1.0.0"
+  contact:
+    email: api@example.com
+servers:
+  - url: https://api.example.com/v1
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+paths:
+  /items:
+    get:
+      operationId: listItems
+      summary: List all items
+      x-capability:
+        intent: Retrieve a paginated list of items
+        domain: inventory
+        safety: safe
+        composable-with: [getItem]
+        idempotency: natural
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+    post:
+      operationId: createItem
+      summary: Create an item
+      x-capability:
+        intent: Create a new inventory item
+        domain: inventory
+        safety: mutating
+        side-effects: [inventory-write]
+        composable-with: [listItems]
+        idempotency: supported
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+              required: [name]
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /items/{id}:
+    delete:
+      operationId: deleteItem
+      summary: Delete an item
+      x-capability:
+        intent: Permanently delete an inventory item by ID
+        domain: inventory
+        safety: destructive
+        side-effects: [inventory-delete]
+        composable-with: [listItems]
+        idempotency: natural
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"

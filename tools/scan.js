@@ -8,6 +8,7 @@
  * Usage:
  *   node scan.js --spec path/to/spec.yaml
  *   node scan.js --spec path/to/spec.yaml --fix
+ *   node scan.js --spec path/to/spec.yaml --fix --fill-ai
  *   node scan.js --spec path/to/spec.yaml --fix --output enriched-spec.yaml
  *   node scan.js --spec path/to/spec.yaml --format json
  *   node scan.js --spec path/to/spec.yaml --output report.md
@@ -27,9 +28,10 @@ const specPath = get("--spec");
 const outputPath = get("--output");
 const format = get("--format") || "terminal";
 const fixMode = has("--fix");
+const fillAi = has("--fill-ai");
 
 if (!specPath) {
-  console.error("Usage: node scan.js --spec <spec.yaml> [--fix] [--output file] [--format terminal|json|markdown]");
+  console.error("Usage: node scan.js --spec <spec.yaml> [--fix [--fill-ai]] [--output file] [--format terminal|json|markdown]");
   process.exit(1);
 }
 
@@ -99,9 +101,21 @@ if (fixMode) {
       const op = pathItem[method];
       if (op["x-capability"]) continue;
       const isMutating = MUTATING.includes(method);
+
+      // --fill-ai: derive intent hint from existing summary/description
+      let intentValue = "TODO: describe what this operation accomplishes in plain language";
+      let domainValue = "TODO: e.g. commerce, identity, fulfillment";
+      if (fillAi && (op.summary || op.description)) {
+        const hint = op.summary || op.description;
+        intentValue = `AI-SUGGESTED: ${hint.trim()} — review and refine`;
+        // Attempt simple domain inference from path/tags
+        const tag = op.tags?.[0];
+        if (tag) domainValue = tag.toLowerCase();
+      }
+
       op["x-capability"] = {
-        intent: "TODO: describe what this operation accomplishes in plain language",
-        domain: "TODO: e.g. commerce, identity, fulfillment",
+        intent: intentValue,
+        domain: domainValue,
         safety: method === "delete" ? "destructive" : isMutating ? "mutating" : "safe",
         ...(isMutating ? { "side-effects": ["TODO: list side effects"] } : {}),
         "composable-with": ["TODO: list operationIds this chains with, or remove"],
@@ -112,11 +126,22 @@ if (fixMode) {
   }
   const fixOut = outputPath || specPath.replace(/\.ya?ml$/, "-enriched.yaml");
   fs.writeFileSync(fixOut, yaml.dump(spec, { lineWidth: 120, noRefs: true }));
+
+  const minsPerOp = 2;
+  const totalMins = fixCount * minsPerOp;
+  const timeEst = totalMins <= 2 ? "~2 min" : totalMins <= 10 ? `~${totalMins} min` : `~${Math.ceil(totalMins / 60 * 10) / 10} hr`;
+
   console.log(col(c.green + c.bold, `✅  Fixed ${fixCount} operation(s) — x-capability skeleton added`));
   console.log(col(c.cyan, `📄  Written to: ${fixOut}`));
   console.log();
   console.log(col(c.bold, "Next steps:"));
-  console.log(`  1. Open ${fixOut} and replace every TODO`);
+  if (fillAi) {
+    console.log(`  1. Review AI-SUGGESTED intent fields in ${fixOut} (${fixCount} ops · ${timeEst} estimated)`);
+    console.log(`     Each field starts with "AI-SUGGESTED:" — edit to confirm or refine`);
+  } else {
+    console.log(`  1. Open ${fixOut} and replace every TODO (${fixCount} ops · ~${minsPerOp} min each · ${timeEst} total)`);
+    console.log(`     💡 Tip: run with --fill-ai to pre-populate intent from your existing summaries`);
+  }
   console.log(`  2. Re-run: node scan.js --spec ${fixOut}`);
   console.log(`  3. Generate MCP config: node ../03-agent-bridge/generate-mcp.js --spec ${fixOut}`);
   process.exit(0);

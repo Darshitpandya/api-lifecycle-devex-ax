@@ -1,0 +1,23 @@
+openapi: "3.1.0"
+info:
+  title: Post-Fix API
+  version: "1.0.0"
+  contact:
+    email: api@example.com
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Create order
+      x-capability:
+        intent: "TODO: describe what this operation accomplishes in plain language"
+        domain: "TODO: e.g. commerce, identity, fulfillment"
+        safety: mutating
+        side-effects: ["TODO: list side effects"]
+        composable-with: ["TODO: list operationIds this chains with, or remove"]
+        idempotency: supported
+      responses:
+        "201":
+          description: Created

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "scan": "node scan.js",
-    "test": "node scan.js --spec ../01-spec-pattern/after.yaml && node scan.js --spec ../01-spec-pattern/before.yaml"
+    "test": "node tests/test-scan.js"
   },
   "dependencies": {
     "js-yaml": "4.1.0"
