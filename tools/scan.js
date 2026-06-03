@@ -66,6 +66,25 @@ try {
   process.exit(1);
 }
 
+// ─── Pre-flight: Spectral structural check (if installed) ────────────────────
+
+(function preflight() {
+  const { spawnSync } = require("child_process");
+  const result = spawnSync(
+    "npx", ["--no-install", "@stoplight/spectral-cli", "lint", path.resolve(specPath), "--format", "text"],
+    { encoding: "utf8", timeout: 15000 }
+  );
+  if (result.status === null) return; // not installed or timed out — skip silently
+  const lines = (result.stdout || "").split("\n");
+  const errors   = lines.filter(l => / error /.test(l)).length;
+  const warnings = lines.filter(l => / warning /.test(l)).length;
+  if (errors === 0 && warnings === 0) return;
+  const parts = [errors > 0 ? `${errors} error(s)` : "", warnings > 0 ? `${warnings} warning(s)` : ""].filter(Boolean);
+  console.log(col(c.yellow, `⚠️  Pre-flight: Spectral found ${parts.join(", ")} — structural issues will affect your DevEx score`));
+  if (errors > 0) console.log(col(c.gray, `   Run: npx @stoplight/spectral-cli lint ${specPath}`));
+  console.log();
+})();
+
 // ─── Extract operations ───────────────────────────────────────────────────────
 
 const HTTP_METHODS = ["get", "post", "put", "patch", "delete"];
