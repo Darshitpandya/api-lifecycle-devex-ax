@@ -1,12 +1,15 @@
 {
   "name": "api-lifecycle-devex-ax-agent-bridge",
   "version": "1.0.0",
-  "description": "Generate MCP server configs from intent-enriched OpenAPI specs",
+  "description": "Generate MCP server configs and run a real MCP server from intent-enriched OpenAPI specs",
   "scripts": {
-    "generate-mcp": "node generate-mcp.js"
+    "generate-mcp": "node generate-mcp.js",
+    "serve": "node serve-mcp.js"
   },
   "dependencies": {
-    "js-yaml": "4.1.0"
+    "@modelcontextprotocol/sdk": "1.12.1",
+    "js-yaml": "4.1.0",
+    "node-fetch": "3.3.2"
   },
   "engines": {
     "node": ">=18"

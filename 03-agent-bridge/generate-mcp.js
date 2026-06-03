@@ -114,11 +114,10 @@ const specAbsPath = path.resolve(specPath);
 const mcpConfig = {
   mcpServers: {
     [apiName]: {
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-openapi"],
+      command: "node",
+      args: [path.resolve(__dirname, "serve-mcp.js"), "--spec", specAbsPath, "--base-url", baseUrl],
       env: {
-        OPENAPI_SPEC_PATH: specAbsPath,
-        API_BASE_URL: baseUrl,
+        API_KEY: "YOUR_API_KEY_HERE",
       }
     }
   }
@@ -164,13 +163,13 @@ toolSummary.forEach(t => {
 });
 
 console.log(`\n🔌 Register with your MCP host:`);
-console.log(`\n  Claude Desktop:`);
-console.log(`    Copy the config to: ~/.config/claude/claude_desktop_config.json`);
-console.log(`    (merge with existing mcpServers if present)`);
-console.log(`\n  Kiro:`);
-console.log(`    Copy the config to: .kiro/settings/mcp.json in your project`);
-console.log(`\n  ⚠️  Update API_BASE_URL to your real API endpoint before registering`);
-console.log(`     Current value: ${baseUrl}`);
+console.log(`\n  1. Set your API key in the config env block:`);
+console.log(`     Replace "YOUR_API_KEY_HERE" with your actual key`);
+console.log(`\n  2. Claude Desktop:`);
+console.log(`     Merge config into: ~/Library/Application\\ Support/Claude/claude_desktop_config.json`);
+console.log(`\n  3. Kiro:`);
+console.log(`     Copy config to: .kiro/settings/mcp.json in your project`);
+console.log(`\n  ⚠️  Never commit API keys — use env vars or a secrets manager in production`);
 
 if (baseUrl.includes("example.com")) {
   console.log(`\n  💡 To use with a real API:`);
