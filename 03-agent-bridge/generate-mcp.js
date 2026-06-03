@@ -115,7 +115,7 @@ const mcpConfig = {
   mcpServers: {
     [apiName]: {
       command: "node",
-      args: [path.resolve(__dirname, "serve-mcp.js"), "--spec", specAbsPath, "--base-url", baseUrl],
+      args: [path.resolve(__dirname, "server.js"), "--spec", specAbsPath, "--base-url", baseUrl],
       env: {
         API_KEY: "YOUR_API_KEY_HERE",
       }

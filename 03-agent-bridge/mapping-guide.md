@@ -16,10 +16,10 @@ cd ../tools && node scan.js --spec my-api.yaml --fix --fill-ai
 cd ../03-agent-bridge && node generate-mcp.js --spec my-api-enriched.yaml --base-url https://my-api.com/v1
 
 # Serve it — agents can now call your real API
-API_KEY=sk-... node serve-mcp.js --spec my-api-enriched.yaml --base-url https://my-api.com/v1
+API_KEY=sk-... node server.js --spec my-api-enriched.yaml --base-url https://my-api.com/v1
 ```
 
-Register the generated `mcp-server.json` with Claude Desktop or Kiro. The MCP host launches `serve-mcp.js` automatically.
+Register the generated `mcp-server.json` with Claude Desktop or Kiro. The MCP host launches `server.js` automatically.
 
 **Auth env vars (never put keys in CLI args or config files):**
 - `API_KEY` → sent as `Authorization: Bearer <key>`

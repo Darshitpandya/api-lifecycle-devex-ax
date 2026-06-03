@@ -4,7 +4,7 @@
   "description": "Generate MCP server configs and run a real MCP server from intent-enriched OpenAPI specs",
   "scripts": {
     "generate-mcp": "node generate-mcp.js",
-    "serve": "node serve-mcp.js"
+    "serve": "node server.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.12.1",
