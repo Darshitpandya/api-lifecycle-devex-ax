@@ -14,19 +14,15 @@ The scanner scores any OpenAPI spec across 4 equal dimensions (25 pts each = 100
 
 | Dimension | What it measures | Points |
 |---|---|---|
-| **DevEx** | Developer onboarding quality — can a human use this API in 15 minutes? | 25 |
-| **AX** | Agent Experience — can an AI agent discover, understand, and safely invoke this API? | 25 |
-| **Governance** | Process maturity — is there a system keeping this API honest over time? | 25 |
-| **Reliability** | Contract durability — will this API behave consistently and be composable? | 25 |
+| **DevEx** | Developer onboarding quality — can a human use this API in 15 minutes? | 20 |
+| **AX** | Agent Experience — can an AI agent discover, understand, and safely invoke this API? | 20 |
+| **Governance** | Process maturity — is there a system keeping this API honest over time? | 20 |
+| **Reliability** | Contract durability — will this API behave consistently and be composable? | 20 |
+| **Lifecycle** | Stability signal — can consumers and agents assess API maturity and plan for change? | 20 |
 
 ### Why equal weights?
 
-A 25/25/25/25 split reflects the thesis that all four dimensions are necessary for a production-grade API. An API that scores 25/0/25/25 is not a 75 — it has a critical failure. Future versions may introduce a "must-pass minimum per dimension" threshold.
-
-Alternative weight models considered and rejected:
-- DevEx-heavy (40/20/20/20): biases toward human DX, ignores the agent consumer
-- AX-heavy (20/40/20/20): biases toward agents, ignores the human developer who has to maintain it
-- Equal weights: forces teams to address all four, which is the actual goal
+A 20/20/20/20/20 split reflects the thesis that all five dimensions are necessary for a production-grade API.
 
 ---
 
@@ -245,6 +241,60 @@ Alternative weight models considered and rejected:
 
 **Standards alignment:**
 - [Model Context Protocol specification](https://spec.modelcontextprotocol.io/) — MCP is the emerging standard for agent-to-tool connectivity
+
+---
+
+## Lifecycle Dimension (20 pts)
+
+*Rationale: A consumer's relationship with an API lasts years. Without lifecycle signals in the spec itself, consumers must read external documentation to assess whether an API is stable, evolving, or dying. The `x-lifecycle` extension makes this machine-readable — visible to humans and agents at scan time.*
+
+**Schema:** See [`01-spec-pattern/schema/lifecycle-schema.json`](../01-spec-pattern/schema/lifecycle-schema.json)
+
+### L1 — x-lifecycle stage and stability declared (8 pts)
+
+**What:** `info.x-lifecycle.stage` must be one of `design|beta|stable|deprecated|sunset` and `info.x-lifecycle.stability` must be one of `experimental|stable|frozen`.
+
+**Why 8 pts (highest in dimension):** These two fields are the primary consumer signal. Before investing in integrating an API, a developer or agent needs to know: "Is this API ready to build on?" and "Will the intent change under me?" Without stage and stability, the consumer has no answer.
+
+- `stage: design` → do not build on this yet
+- `stage: beta` → interface may change — proceed with caution
+- `stage: stable` → safe to build on
+- `stage: deprecated` → plan your migration now
+- `stage: sunset` → this API no longer responds
+
+- `stability: experimental` → intent may change without notice
+- `stability: stable` → intent changes are versioned and communicated
+- `stability: frozen` → no further changes — sunset is planned
+
+---
+
+### L2 — intent-version declared (4 pts)
+
+**What:** `info.x-lifecycle.intent-version` must be present in `major.minor` format (e.g. `1.0`, `1.2`, `2.0`).
+
+**Why 4 pts:** Agents build workflows around `x-capability.intent`. If intent changes — even non-materially — agents need to know. Intent versioning is the mechanism that separates a "breaking intent change" (major bump) from a clarifying edit (minor bump). Without it, agents have no way to detect that the operation they trusted last week now means something different.
+
+**Versioning rules:**
+- Minor bump (`1.0 → 1.1`): intent description improved but meaning unchanged — agents can continue without change
+- Major bump (`1.0 → 2.0`): operation meaning changed — agent workflows must be reviewed
+
+---
+
+### L3 — sunset plan when deprecated or sunset (4 pts)
+
+**What:** When `stage` is `deprecated` or `sunset`, both `sunset-date` (ISO date) and `migration-guide` (URL) must be present.
+
+**Why 4 pts:** A deprecated API without a sunset date and migration guide is a broken promise to consumers. This check enforces that deprecation is a contract, not just a warning. Agents use `migration-guide` for Capability Redirect — automatically routing to the replacement without human intervention.
+
+**Informational when stage is stable:** If the API is `stable`, this check passes as informational — no sunset plan required yet.
+
+---
+
+### L4 — since date declared (4 pts, informational)
+
+**What:** `info.x-lifecycle.since` must be a valid ISO 8601 date (YYYY-MM-DD).
+
+**Why 4 pts (informational, not hard fail):** The `since` date lets consumers calculate how long the API has been in its current stage. A `stable` API with `since: 2023-01-01` signals significantly more confidence than `since: 2026-05-01`. This is a maturity signal, not a binary requirement — scored as informational rather than blocking.
 
 ---
 

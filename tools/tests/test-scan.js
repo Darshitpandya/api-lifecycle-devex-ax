@@ -59,8 +59,14 @@ test("bare spec: AX score is 0 (no x-capability)", () => {
 
 test("bare spec: DevEx score is 0 (no operationId, summary, servers, contact)", () => {
   const r = scan("bare.yaml");
-  // D1-D4 all fail; D5 trivially passes (no error codes declared) = 5
-  assert(r.scores.devex <= 5, `Expected devex<=5, got ${r.scores.devex}`);
+  // D1-D4 all fail; D5 trivially passes (no error codes declared) = 4
+  assert(r.scores.devex <= 4, `Expected devex<=4, got ${r.scores.devex}`);
+});
+
+test("bare spec: Lifecycle score is 0 (no x-lifecycle)", () => {
+  const r = scan("bare.yaml");
+  // L4 is informational (passes), L1-L3 fail = 0+0+4+0 = 4 max for info
+  assert(r.scores.lifecycle <= 4, `Expected lifecycle<=4, got ${r.scores.lifecycle}`);
 });
 
 console.log("\nScanner — enriched spec");
@@ -70,14 +76,19 @@ test("enriched spec scores above 60/100", () => {
   assert(r.total > 60, `Expected > 60, got ${r.total}`);
 });
 
-test("enriched spec: AX score is 25/25", () => {
+test("enriched spec: AX score is 20/20", () => {
   const r = scan("enriched.yaml");
-  assert(r.scores.ax === 25, `Expected ax=25, got ${r.scores.ax}`);
+  assert(r.scores.ax === 20, `Expected ax=20, got ${r.scores.ax}`);
 });
 
-test("enriched spec: DevEx score is 25/25", () => {
+test("enriched spec: DevEx score is 20/20", () => {
   const r = scan("enriched.yaml");
-  assert(r.scores.devex === 25, `Expected devex=25, got ${r.scores.devex}`);
+  assert(r.scores.devex === 20, `Expected devex=20, got ${r.scores.devex}`);
+});
+
+test("enriched spec: Lifecycle score is 20/20", () => {
+  const r = scan("enriched.yaml");
+  assert(r.scores.lifecycle === 20, `Expected lifecycle=20, got ${r.scores.lifecycle}`);
 });
 
 console.log("\nScanner — TODO detection (post --fix, pre-fill)");

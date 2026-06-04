@@ -4,6 +4,13 @@ info:
   version: "1.0.0"
   contact:
     email: api@example.com
+  x-lifecycle:
+    stage: stable
+    stability: stable
+    since: "2025-01-15"
+    intent-version: "1.0"
+    sunset-date: null
+    migration-guide: null
 servers:
   - url: https://api.example.com/v1
 components:

@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://platformpioneer.io/schemas/x-lifecycle/v1.0.0/lifecycle-schema.json",
+  "title": "x-lifecycle",
+  "description": "OpenAPI info-level extension that declares the lifecycle stage, stability, and sunset plan of an API. Makes lifecycle health visible to consumers and AI agents without reading documentation.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["stage", "stability"],
+  "properties": {
+    "stage": {
+      "type": "string",
+      "enum": ["design", "beta", "stable", "deprecated", "sunset"],
+      "description": "Current lifecycle stage. Consumers and agents use this to decide whether to build on this API. 'design': not ready for use. 'beta': interface may change. 'stable': safe to build on. 'deprecated': will be removed, use migration-guide. 'sunset': no longer available."
+    },
+    "stability": {
+      "type": "string",
+      "enum": ["experimental", "stable", "frozen"],
+      "description": "Intent and schema stability signal. 'experimental': x-capability.intent may change without notice. 'stable': intent changes are versioned and communicated. 'frozen': no further changes — sunset is planned."
+    },
+    "since": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date when the current stage began. Consumers can calculate API age and stability duration.",
+      "examples": ["2025-01-15"]
+    },
+    "sunset-date": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "ISO 8601 date when this API will stop responding. Required when stage is 'deprecated' or 'sunset'. Consumers should use this to plan migration timelines.",
+      "examples": ["2026-12-31"]
+    },
+    "migration-guide": {
+      "type": ["string", "null"],
+      "format": "uri",
+      "description": "URL to the migration guide for consumers moving away from this API. Required when stage is 'deprecated' or 'sunset'.",
+      "examples": ["https://docs.example.com/api/v2/migration"]
+    },
+    "intent-version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the x-capability intent contract. Bump minor when intent descriptions change non-materially. Bump major when the meaning of an operation changes — this is a breaking change for agents.",
+      "examples": ["1.0", "1.2", "2.0"]
+    },
+    "replacement": {
+      "type": ["string", "null"],
+      "description": "operationId or API identifier that replaces this one when deprecated. Agents use this for Capability Redirect — self-healing workflows when an API is sunset.",
+      "examples": ["createOrderV2", "https://api.example.com/v2"]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "stage": { "enum": ["deprecated", "sunset"] } },
+        "required": ["stage"]
+      },
+      "then": {
+        "required": ["sunset-date", "migration-guide"],
+        "description": "sunset-date and migration-guide are required when stage is deprecated or sunset"
+      }
+    }
+  ],
+  "additionalProperties": false
+}

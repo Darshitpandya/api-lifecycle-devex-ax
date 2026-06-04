@@ -113,6 +113,18 @@ function findUp(filename, startDir) {
 // ─── Fix mode ─────────────────────────────────────────────────────────────────
 
 if (fixMode) {
+  // Scaffold x-lifecycle in info block if missing
+  if (!spec.info["x-lifecycle"]) {
+    spec.info["x-lifecycle"] = {
+      stage: "TODO: design | beta | stable | deprecated | sunset",
+      stability: "TODO: experimental | stable | frozen",
+      since: new Date().toISOString().slice(0, 10),
+      "intent-version": "1.0",
+      "sunset-date": null,
+      "migration-guide": null,
+    };
+  }
+
   let fixCount = 0;
   for (const [, pathItem] of Object.entries(spec.paths || {})) {
     for (const method of HTTP_METHODS) {
@@ -166,46 +178,47 @@ if (fixMode) {
   process.exit(0);
 }
 
-// ─── Scoring: 4 dimensions × 25 pts = 100 ────────────────────────────────────
+// ─── Scoring: 5 dimensions × 20 pts = 100 ────────────────────────────────────
 //
-//  DevEx (25)      — clarity, discoverability, developer onboarding quality
-//  AX    (25)      — agent readiness: intent, safety, composability, errors
-//  Governance (25) — CI, Spectral, deprecation runway in repo
-//  Reliability(25) — idempotency, versioning signals, contract testability
+//  DevEx      (20) — clarity, discoverability, developer onboarding quality
+//  AX         (20) — agent readiness: intent, safety, composability, errors
+//  Governance (20) — CI, Spectral, deprecation runway in repo
+//  Reliability(20) — idempotency, composability, contract testability
+//  Lifecycle  (20) — stability stage, sunset plan, intent versioning
 
-const results = { devex: [], ax: [], governance: [], reliability: [] };
+const results = { devex: [], ax: [], governance: [], reliability: [], lifecycle: [] };
 
 function check(dim, id, label, fn) {
   const r = fn();
   results[dim].push({ id, label, ...r });
 }
 
-// ── DevEx checks (25 pts, 5 checks × 5 pts each) ─────────────────────────────
+// ── DevEx checks (20 pts, 5 checks × 4 pts each) ─────────────────────────────
 
 check("devex", "D1", "operationId on all operations", () => {
   const missing = operations.filter(o => !o.op.operationId);
-  return { pass: missing.length === 0, pts: 5,
+  return { pass: missing.length === 0, pts: 4,
     detail: missing.length === 0 ? "All operations have operationId" : `Missing on: ${missing.map(o => `${o.method.toUpperCase()} ${o.path}`).join(", ")}`,
     fix: "Add operationId to every operation — required for SDK generation and MCP tool names" };
 });
 
 check("devex", "D2", "summary or description on all operations", () => {
   const missing = operations.filter(o => !o.op.summary && !o.op.description);
-  return { pass: missing.length === 0, pts: 5,
+  return { pass: missing.length === 0, pts: 4,
     detail: missing.length === 0 ? "All operations have summary/description" : `Missing on: ${missing.map(o => `${o.method.toUpperCase()} ${o.path}`).join(", ")}`,
     fix: "Add summary or description to every operation" };
 });
 
 check("devex", "D3", "servers block defined", () => {
   const has = spec.servers && spec.servers.length > 0;
-  return { pass: has, pts: 5,
+  return { pass: has, pts: 4,
     detail: has ? `${spec.servers.length} server(s) defined` : "No servers block — developers don't know where to call",
     fix: "Add a servers block with at least a sandbox URL" };
 });
 
 check("devex", "D4", "contact info in info block", () => {
   const has = spec.info?.contact?.email || spec.info?.contact?.url;
-  return { pass: !!has, pts: 5,
+  return { pass: !!has, pts: 4,
     detail: has ? "Contact info present" : "No contact info — developers don't know who to reach",
     fix: "Add info.contact with email or url" };
 });
@@ -220,23 +233,23 @@ check("devex", "D5", "error responses use RFC 9457 Problem Details", () => {
       if (!resp.content?.["application/problem+json"]) violations.push(`${method.toUpperCase()} ${p} → ${code}`);
     }
   }
-  return { pass: violations.length === 0, pts: 5,
+  return { pass: violations.length === 0, pts: 4,
     detail: violations.length === 0 ? "All error responses use application/problem+json" : `Not using Problem Details: ${violations.slice(0,3).join(", ")}${violations.length > 3 ? ` +${violations.length-3} more` : ""}`,
     fix: "Use content-type application/problem+json for error responses (RFC 9457)" };
 });
 
-// ── AX checks (25 pts, 5 checks × 5 pts each) ────────────────────────────────
+// ── AX checks (20 pts, 5 checks × 4 pts each) ────────────────────────────────
 
 check("ax", "A1", "x-capability on all operations", () => {
   const missing = operations.filter(o => !o.op["x-capability"]);
-  return { pass: missing.length === 0, pts: 5,
+  return { pass: missing.length === 0, pts: 4,
     detail: missing.length === 0 ? `All ${operations.length} operations have x-capability` : `Missing on: ${missing.map(o => `${o.method.toUpperCase()} ${o.path}`).join(", ")}`,
     fix: "Add x-capability to each operation. Run --fix to generate skeleton." };
 });
 
 check("ax", "A2", "intent declared on all operations", () => {
   const missing = operations.filter(o => !o.op["x-capability"]?.intent || o.op["x-capability"].intent.includes("TODO"));
-  return { pass: missing.length === 0, pts: 5,
+  return { pass: missing.length === 0, pts: 4,
     detail: missing.length === 0 ? "All operations have intent" : `Missing/TODO intent on: ${missing.map(o => `${o.method.toUpperCase()} ${o.path}`).join(", ")}`,
     fix: "Add x-capability.intent — plain-language description of what this operation accomplishes" };
 });
@@ -244,7 +257,7 @@ check("ax", "A2", "intent declared on all operations", () => {
 check("ax", "A3", "safety classification on all operations", () => {
   const VALID = ["safe", "mutating", "destructive"];
   const missing = operations.filter(o => !VALID.includes(o.op["x-capability"]?.safety));
-  return { pass: missing.length === 0, pts: 5,
+  return { pass: missing.length === 0, pts: 4,
     detail: missing.length === 0 ? "All operations have safety classification" : `Missing on: ${missing.map(o => `${o.method.toUpperCase()} ${o.path}`).join(", ")}`,
     fix: "Add x-capability.safety: safe | mutating | destructive" };
 });
@@ -252,7 +265,7 @@ check("ax", "A3", "safety classification on all operations", () => {
 check("ax", "A4", "side-effects declared on mutating operations", () => {
   const mutating = operations.filter(o => MUTATING.includes(o.method));
   const missing = mutating.filter(o => !o.op["x-capability"]?.["side-effects"]?.length || o.op["x-capability"]["side-effects"][0]?.includes("TODO"));
-  return { pass: missing.length === 0, pts: 5,
+  return { pass: missing.length === 0, pts: 4,
     detail: missing.length === 0 ? `All ${mutating.length} mutating operations declare side-effects` : `Missing on: ${missing.map(o => `${o.method.toUpperCase()} ${o.path}`).join(", ")}`,
     fix: "Add x-capability.side-effects: [list of side effects]" };
 });
@@ -260,7 +273,7 @@ check("ax", "A4", "side-effects declared on mutating operations", () => {
 check("ax", "A5", "idempotency documented on all operations", () => {
   const VALID = ["supported", "not-supported", "natural"];
   const missing = operations.filter(o => !VALID.includes(o.op["x-capability"]?.idempotency));
-  return { pass: missing.length === 0, pts: 5,
+  return { pass: missing.length === 0, pts: 4,
     detail: missing.length === 0 ? "All operations document idempotency" : `Missing on: ${missing.map(o => `${o.method.toUpperCase()} ${o.path}`).join(", ")}`,
     fix: "Add x-capability.idempotency: supported | not-supported | natural" };
 });
@@ -281,7 +294,7 @@ function isOwnRepoFile(filePath) {
 check("governance", "G1", "Spectral ruleset exists (.spectral.yml)", () => {
   const found = findUp(".spectral.yml", specDir) || findUp("governance-as-code/.spectral.yml", specDir);
   const inflated = isOwnRepoFile(found);
-  return { pass: !!found && !inflated, pts: 10,
+  return { pass: !!found && !inflated, pts: 8,
     info: inflated,
     detail: !found ? "No .spectral.yml found" : inflated ? "Found in playbook repo — add your own .spectral.yml to your project" : `Found: ${path.relative(specDir, found)}`,
     fix: "Add .spectral.yml to your repo — copy from 02-governance/.spectral.yml in this playbook" };
@@ -294,7 +307,7 @@ check("governance", "G2", "GitHub Actions CI workflow exists", () => {
     try { found = fs.readdirSync(workflowDir).find(f => f.endsWith(".yml") || f.endsWith(".yaml")); } catch (_) {}
   }
   const inflated = isOwnRepoFile(workflowDir);
-  return { pass: !!found && !inflated, pts: 10,
+  return { pass: !!found && !inflated, pts: 8,
     info: inflated,
     detail: !found ? "No GitHub Actions workflow found" : inflated ? "Found in playbook repo — add your own workflow to your project" : `Found: .github/workflows/${found}`,
     fix: "Add .github/workflows/api-lint.yml to your repo — copy from this playbook" };
@@ -303,25 +316,25 @@ check("governance", "G2", "GitHub Actions CI workflow exists", () => {
 check("governance", "G3", "Deprecation runway template exists", () => {
   const found = findUp("governance-as-code/deprecation-runway.md", specDir) || findUp("deprecation-runway.md", specDir);
   const hasPlaceholder = found ? fs.readFileSync(found, "utf8").includes("[YYYY-MM-DD]") : true;
-  return { pass: !!found && !hasPlaceholder, pts: 5,
+  return { pass: !!found && !hasPlaceholder, pts: 4,
     info: !!found && hasPlaceholder,
     detail: !found ? "No deprecation-runway.md found" : hasPlaceholder ? "Template found — fill in dates when you deprecate an API" : "Deprecation runway template found with dates",
     fix: "Add governance-as-code/deprecation-runway.md and fill in dates when starting a deprecation" };
 });
 
-// ── Reliability checks (25 pts) ───────────────────────────────────────────────
+// ── Reliability checks (20 pts: 8+8+4) ───────────────────────────────────────
 
 check("reliability", "R1", "ProblemDetails schema in components", () => {
   const schemas = spec.components?.schemas || {};
   const has = Object.keys(schemas).some(k => k.toLowerCase().includes("problem") || k.toLowerCase().includes("error"));
-  return { pass: has, pts: 10,
+  return { pass: has, pts: 8,
     detail: has ? "ProblemDetails schema found in components" : "No ProblemDetails/Error schema in components/schemas",
     fix: "Add ProblemDetails schema to components/schemas (RFC 9457: type, title, status, detail, instance)" };
 });
 
 check("reliability", "R2", "composable-with declared (workflow planning)", () => {
   const missing = operations.filter(o => !o.op["x-capability"]?.["composable-with"]?.length || o.op["x-capability"]["composable-with"][0]?.includes("TODO"));
-  return { pass: missing.length === 0, pts: 10,
+  return { pass: missing.length === 0, pts: 8,
     detail: missing.length === 0 ? "All operations declare composability" : `Missing on: ${missing.map(o => `${o.method.toUpperCase()} ${o.path}`).join(", ")}`,
     fix: "Add x-capability.composable-with: [operationIds] — helps agents plan multi-step workflows" };
 });
@@ -329,10 +342,60 @@ check("reliability", "R2", "composable-with declared (workflow planning)", () =>
 check("reliability", "R3", "MCP server config exists", () => {
   const candidates = ["mcp-server.json", "03-agent-bridge/mcp-server.json", ".kiro/settings/mcp.json"];
   const found = candidates.map(c => findUp(c, specDir)).find(Boolean);
-  return { pass: !!found, pts: 5,
+  return { pass: !!found, pts: 4,
     info: !found,
     detail: found ? `Found: ${path.relative(specDir, found)}` : "No MCP server config — expected next step after enriching spec",
     fix: "Generate MCP config: node 03-agent-bridge/generate-mcp.js --spec your-spec.yaml --base-url https://your-api.com" };
+});
+
+// ── Lifecycle checks (20 pts: 8+4+4+4) ───────────────────────────────────────
+// Checks info.x-lifecycle — makes lifecycle health visible to consumers at scan time
+
+const lc = spec.info?.["x-lifecycle"];
+const LIFECYCLE_STAGES = ["design", "beta", "stable", "deprecated", "sunset"];
+const STABILITY_VALUES = ["experimental", "stable", "frozen"];
+
+check("lifecycle", "L1", "x-lifecycle stage and stability declared", () => {
+  const hasStage = LIFECYCLE_STAGES.includes(lc?.stage);
+  const hasStability = STABILITY_VALUES.includes(lc?.stability);
+  const pass = hasStage && hasStability;
+  return { pass, pts: 8,
+    detail: pass
+      ? `Stage: ${lc.stage} · Stability: ${lc.stability}`
+      : !lc ? "No x-lifecycle in info block — consumers cannot determine API stability"
+      : `Missing or invalid: ${!hasStage ? "stage" : ""}${!hasStage && !hasStability ? ", " : ""}${!hasStability ? "stability" : ""}`,
+    fix: "Add info.x-lifecycle with stage (design|beta|stable|deprecated|sunset) and stability (experimental|stable|frozen). Run --fix to scaffold." };
+});
+
+check("lifecycle", "L2", "intent-version declared (tracks x-capability changes)", () => {
+  const has = lc?.["intent-version"] && /^\d+\.\d+$/.test(lc["intent-version"]);
+  return { pass: !!has, pts: 4,
+    detail: has ? `Intent version: ${lc["intent-version"]}` : "No intent-version — consumers cannot detect breaking intent changes",
+    fix: "Add info.x-lifecycle.intent-version (e.g. '1.0') — bump when x-capability.intent changes materially" };
+});
+
+check("lifecycle", "L3", "sunset plan when deprecated or sunset", () => {
+  const stage = lc?.stage;
+  if (!["deprecated", "sunset"].includes(stage)) {
+    return { pass: true, pts: 4, info: true,
+      detail: `Stage is '${stage || "not declared"}' — sunset plan not required`,
+      fix: "When stage becomes deprecated or sunset, add sunset-date and migration-guide" };
+  }
+  const hasSunset = !!lc?.["sunset-date"];
+  const hasMigration = !!lc?.["migration-guide"];
+  return { pass: hasSunset && hasMigration, pts: 4,
+    detail: hasSunset && hasMigration
+      ? `Sunset: ${lc["sunset-date"]} · Migration: ${lc["migration-guide"]}`
+      : `API is ${stage} but missing: ${!hasSunset ? "sunset-date" : ""}${!hasSunset && !hasMigration ? ", " : ""}${!hasMigration ? "migration-guide" : ""}`,
+    fix: "Add info.x-lifecycle.sunset-date (ISO date) and migration-guide (URL) — required for deprecated/sunset APIs" };
+});
+
+check("lifecycle", "L4", "since date declared (API age signal)", () => {
+  const has = lc?.since && /^\d{4}-\d{2}-\d{2}$/.test(lc.since);
+  return { pass: !!has, pts: 4,
+    info: !has,
+    detail: has ? `API in current stage since: ${lc.since}` : "No since date — consumers cannot assess API maturity",
+    fix: "Add info.x-lifecycle.since: 'YYYY-MM-DD' — date when current stage began" };
 });
 
 // ─── Score calculation ────────────────────────────────────────────────────────
@@ -346,6 +409,7 @@ const scores = {
   ax:         dimScore("ax"),
   governance: dimScore("governance"),
   reliability:dimScore("reliability"),
+  lifecycle:  dimScore("lifecycle"),
 };
 const total = Object.values(scores).reduce((a, b) => a + b, 0);
 
@@ -401,10 +465,11 @@ p(BOX_L + vPad(col(c.gray, `  Dimension       Score   Progress`), W) + BOX_R);
 p(BOX_L + vPad(col(c.gray, `  ${"─".repeat(W - 2)}`), W) + BOX_R);
 
 const dims = [
-  { key: "devex",       label: "DevEx      ", max: 25 },
-  { key: "ax",          label: "AX         ", max: 25 },
-  { key: "governance",  label: "Governance ", max: 25 },
-  { key: "reliability", label: "Reliability", max: 25 },
+  { key: "devex",       label: "DevEx      ", max: 20 },
+  { key: "ax",          label: "AX         ", max: 20 },
+  { key: "governance",  label: "Governance ", max: 20 },
+  { key: "reliability", label: "Reliability", max: 20 },
+  { key: "lifecycle",   label: "Lifecycle  ", max: 20 },
 ];
 
 for (const d of dims) {

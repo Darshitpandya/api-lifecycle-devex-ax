@@ -6,6 +6,15 @@ info:
   contact:
     name: Platform Engineering
     email: platform@example.com
+  # x-lifecycle: makes API stability and sunset plan visible to consumers and agents
+  # See 01-spec-pattern/schema/lifecycle-schema.json for the full schema
+  x-lifecycle:
+    stage: stable
+    stability: stable
+    since: "2025-01-15"
+    intent-version: "1.2"
+    sunset-date: null
+    migration-guide: null
 
 servers:
   - url: https://api.example.com/v1
