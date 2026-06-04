@@ -44,3 +44,7 @@ responses:
 After editing any spec: `cd governance && npm run lint:api -- --spec ../your-spec.yaml`
 
 See `01-spec-pattern/after.yaml` for the complete reference implementation.
+
+## Why each check exists
+
+Every scoring rule has a published rationale with standards alignment (RFC 9457, OWASP, Zalando, OpenAPI spec). Before explaining or debating a check, read `SCORING.md` — it documents the exact reasoning, weight justification, and known gaps for all 14 checks across DevEx, AX, Governance, and Reliability dimensions.

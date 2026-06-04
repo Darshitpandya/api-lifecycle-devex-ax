@@ -15,8 +15,8 @@ Run the automated scanner and explain what needs to be fixed.
    cd tools && npm install && node scan.js --spec ../path/to/spec.yaml
    ```
 3. **Parse the results** — identify all ❌ failures and ⚠️ warnings
-4. **Explain each failure** — for each failed check, explain:
-   - What it means in plain language
+4. **Explain each failure** — for each failed check, consult `SCORING.md` to explain:
+   - What the check is and why it exists (cite the specific RFC, OWASP rule, or industry standard)
    - Why it matters for DevEx and AX
    - The exact fix needed
 5. **Prioritise** — group fixes by effort: quick wins (add missing fields) vs. structural changes (RFC 9457 errors)

@@ -6,7 +6,7 @@ Run the automated agent-readiness scanner on an OpenAPI spec and explain the res
 
 1. Run: `cd tools && npm install && node scan.js --spec $ARGUMENTS`
 2. Parse all ❌ failures and ⚠️ warnings
-3. Explain each failure in plain language — what it means, why it matters, how to fix it
+3. For each failure, consult `SCORING.md` to explain: what the check is, why it exists (with the specific RFC/standard it aligns to), and exactly how to fix it
 4. Group fixes by effort: quick wins vs. structural changes
 5. Ask if you want me to apply the fixes with `/make-api-agent-ready`
 

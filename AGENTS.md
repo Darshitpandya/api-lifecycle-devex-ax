@@ -20,7 +20,8 @@ A production-ready playbook for APIs that deliver world-class **DevEx** (Develop
 
 | File | Purpose |
 |---|---|
-| `01-spec-pattern/schema/capability-schema.json` | JSON Schema for `x-capability` |
+| `SCORING.md` | **Authoritative scoring methodology** — every check, every weight, standards alignment |
+| `01-spec-pattern/schema/capability-schema.json` | Versioned JSON Schema for `x-capability` (v1.0.0) |
 | `01-spec-pattern/before.yaml` | Typical API spec — no intent metadata |
 | `01-spec-pattern/after.yaml` | Same spec — agent-ready (reference implementation) |
 | `02-governance/.spectral.yml` | 5 lint rules enforcing agent-readiness |
@@ -28,6 +29,16 @@ A production-ready playbook for APIs that deliver world-class **DevEx** (Develop
 | `tools/scan.js` | CLI scanner — 14 checks, Markdown/JSON report |
 | `04-measure/lifecycle-scorecard.md` | 30-question self-assessment |
 | `04-measure/devex-metrics.md` | TTFHW and developer churn measurement |
+
+## When explaining a failing check
+
+Always consult `SCORING.md` before explaining why a check failed. It contains:
+- The exact rationale for each check (D1–D5, A1–A5, G1–G3, R1–R3)
+- The weight justification (why 5 pts vs 10 pts)
+- The specific RFC, OWASP rule, or industry guideline each check aligns to
+- Known gaps and open questions the community is debating
+
+Example: if A3 (safety classification) fails, `SCORING.md` explains it aligns to RFC 9110 §9.2 and OWASP API8:2023 — not just "safety is missing".
 
 ## When annotating OpenAPI specs
 
