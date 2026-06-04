@@ -1,51 +1,83 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://platformpioneer.io/schemas/x-capability/v1.0.0/capability-schema.json",
   "title": "x-capability",
-  "description": "OpenAPI extension that makes API operations discoverable and consumable by AI agents. Add to every operation alongside standard OpenAPI fields.",
+  "description": "OpenAPI extension (x-capability) that makes API operations discoverable and safely invocable by AI agents. Add to every operation alongside standard OpenAPI fields. Versioned specification — see SCORING.md for rationale.",
+  "version": "1.0.0",
   "type": "object",
   "required": ["intent", "domain", "safety"],
   "properties": {
     "intent": {
       "type": "string",
-      "description": "Plain-language description of what this operation accomplishes — written for both human developers and AI agents. Not a technical summary. Answer: 'what can I accomplish by calling this?'"
+      "minLength": 10,
+      "description": "Plain-language description of what this operation accomplishes — written for both human developers and AI agents. Answer: 'what can I accomplish by calling this?' Used directly as the MCP tool description.",
+      "examples": [
+        "Create a commerce order with payment capture and inventory reservation",
+        "Retrieve a paginated list of user accounts filtered by role",
+        "Permanently delete a payment method and revoke associated tokens"
+      ]
     },
     "domain": {
       "type": "string",
-      "description": "Business domain this capability belongs to.",
+      "description": "Business domain this capability belongs to. Used for capability catalog organisation and agent routing.",
       "examples": ["commerce", "identity", "fulfillment", "inventory", "payments", "notifications"]
     },
     "workflow": {
       "type": "string",
-      "description": "The workflow or process this capability participates in.",
+      "description": "The higher-level workflow or process this capability participates in. Optional — used for multi-step workflow planning.",
       "examples": ["order-fulfillment", "user-onboarding", "payment-processing"]
-    },
-    "side-effects": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "Side effects this operation produces. Required for mutating operations.",
-      "examples": [["payment-capture", "inventory-reserve", "email-notification"]]
-    },
-    "composable-with": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "operationIds of other capabilities this can be chained with in a workflow. Agents use this for workflow planning."
-    },
-    "requires": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "Prerequisites for invoking this capability.",
-      "examples": [["authenticated-context", "payment-method", "valid-cart"]]
-    },
-    "idempotency": {
-      "type": "string",
-      "enum": ["supported", "not-supported", "natural"],
-      "description": "'supported' = via Idempotency-Key header. 'natural' = inherently idempotent (GET, PUT). 'not-supported' = retries may cause duplicates."
     },
     "safety": {
       "type": "string",
       "enum": ["safe", "mutating", "destructive"],
-      "description": "Safety classification for agent decision-making. 'safe' = read-only, no side effects. 'mutating' = creates or modifies state. 'destructive' = deletes or irreversible action."
+      "description": "Safety classification for agent decision-making. Extends HTTP method semantics (RFC 9110 §9.2) to the operation level. 'safe': read-only, no side effects — agent may invoke freely. 'mutating': creates or modifies state — agent should confirm intent. 'destructive': deletes or irreversible action — agent requires explicit authorisation."
+    },
+    "side-effects": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "description": "Side effects this operation produces. Required for mutating and destructive operations. Agents use this to understand consequences before invoking.",
+      "examples": [
+        ["payment-capture", "inventory-reserve", "email-notification"],
+        ["user-record-created", "welcome-email-queued"],
+        ["session-invalidated", "tokens-revoked"]
+      ]
+    },
+    "composable-with": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "operationIds of other capabilities this can be chained with in a workflow. Agents use this for multi-step workflow planning. Reference operationIds exactly as declared in the spec.",
+      "examples": [
+        ["checkInventory", "dispatchFulfillment"],
+        ["createPaymentMethod", "capturePayment"]
+      ]
+    },
+    "requires": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Prerequisites for invoking this capability. Agents use this to determine whether they have satisfied pre-conditions before invoking.",
+      "examples": [
+        ["authenticated-context", "payment-method-on-file"],
+        ["valid-cart", "shipping-address"]
+      ]
+    },
+    "idempotency": {
+      "type": "string",
+      "enum": ["supported", "not-supported", "natural"],
+      "description": "Idempotency behaviour for agent retry decisions. 'natural': inherently idempotent (GET, HEAD, DELETE by definition) — safe to retry without key. 'supported': idempotent via Idempotency-Key header (IETF draft-ietf-httpapi-idempotency-key-header) — agent must send the same key to retry safely. 'not-supported': retries may produce duplicates — agent must handle failures without retry."
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "safety": { "enum": ["mutating", "destructive"] } },
+        "required": ["safety"]
+      },
+      "then": {
+        "required": ["side-effects"],
+        "description": "side-effects is required when safety is mutating or destructive"
+      }
+    }
+  ]
 }

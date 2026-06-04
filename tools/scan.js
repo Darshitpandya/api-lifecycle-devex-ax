@@ -266,12 +266,25 @@ check("ax", "A5", "idempotency documented on all operations", () => {
 });
 
 // ── Governance checks (25 pts) ────────────────────────────────────────────────
+// NOTE: G1 and G2 look for governance files relative to the spec's directory.
+// Files found inside this playbook repo itself are excluded — governance points
+// should only be awarded for files the user's own project has set up.
+
+const PLAYBOOK_REPO_MARKER = "api-lifecycle-devex-ax"; // marker to detect this repo
+
+function isOwnRepoFile(filePath) {
+  // If the found file is inside this playbook repo, don't award points for it
+  return filePath && filePath.includes(PLAYBOOK_REPO_MARKER) &&
+    !specDir.includes(PLAYBOOK_REPO_MARKER);
+}
 
 check("governance", "G1", "Spectral ruleset exists (.spectral.yml)", () => {
   const found = findUp(".spectral.yml", specDir) || findUp("governance-as-code/.spectral.yml", specDir);
-  return { pass: !!found, pts: 10,
-    detail: found ? `Found: ${path.relative(specDir, found)}` : "No .spectral.yml found",
-    fix: "Add governance-as-code/.spectral.yml — copy from this playbook repo" };
+  const inflated = isOwnRepoFile(found);
+  return { pass: !!found && !inflated, pts: 10,
+    info: inflated,
+    detail: !found ? "No .spectral.yml found" : inflated ? "Found in playbook repo — add your own .spectral.yml to your project" : `Found: ${path.relative(specDir, found)}`,
+    fix: "Add .spectral.yml to your repo — copy from 02-governance/.spectral.yml in this playbook" };
 });
 
 check("governance", "G2", "GitHub Actions CI workflow exists", () => {
@@ -280,9 +293,11 @@ check("governance", "G2", "GitHub Actions CI workflow exists", () => {
   if (workflowDir) {
     try { found = fs.readdirSync(workflowDir).find(f => f.endsWith(".yml") || f.endsWith(".yaml")); } catch (_) {}
   }
-  return { pass: !!found, pts: 10,
-    detail: found ? `Found: .github/workflows/${found}` : "No GitHub Actions workflow found",
-    fix: "Add .github/workflows/api-lint.yml — copy from this playbook repo" };
+  const inflated = isOwnRepoFile(workflowDir);
+  return { pass: !!found && !inflated, pts: 10,
+    info: inflated,
+    detail: !found ? "No GitHub Actions workflow found" : inflated ? "Found in playbook repo — add your own workflow to your project" : `Found: .github/workflows/${found}`,
+    fix: "Add .github/workflows/api-lint.yml to your repo — copy from this playbook" };
 });
 
 check("governance", "G3", "Deprecation runway template exists", () => {
